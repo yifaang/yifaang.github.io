@@ -266,4 +266,31 @@
         <tag>Vulnhub-Hard</tag>
       </tags>
   </entry>
+  <entry>
+    <title>TCP/IP协议包头</title>
+    <url>/2021/11/07/TCPIP/TCPIP/</url>
+    <content><![CDATA[<h1 id="TCP-IP包头"><a href="#TCP-IP包头" class="headerlink" title="TCP/IP包头"></a>TCP/IP包头</h1><h2 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h2><h2 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h2><h2 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h2><h2 id="UDP协议"><a href="#UDP协议" class="headerlink" title="UDP协议"></a>UDP协议</h2><h2 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h2><h2 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h2><h2 id="DNS协议"><a href="#DNS协议" class="headerlink" title="DNS协议"></a>DNS协议</h2><p><code>报文头</code> <code>问题|向服务器提出查询部分</code> <code>回答 | 服务器恢复的资源记录</code> <code>授权|权威的资源记录</code> <code>格外的|格外的资源记录</code></p>
+<p>除了报文头是固定的12字节外，其他每一部分的长度均为不定字节数，这边关心的是报文头、问题、回答这三个部分</p>
+<hr>
+<p>报文头</p>
+<p><code>ID</code> <code>QR|Opcode|AA|TC|RD|RA|Z|RCcode</code> <code>QDCPUNT</code> <code>ANCOUNT</code> <code>NSCOUNT</code> <code>ARCOUNT</code></p>
+<p><code>ID</code>:占16位，2个字节。此报文的编号，由客户端指定。DNS回复时带上此标识，以指示处理的对应请应请求。<br><code>QR</code>:占1位，1/8字节。0代表查询，1代表DNS回复<br><code>Opcode</code>:占4位，1/2字节。指示查询种类：0:标准查询；1:反向查询；2:服务器状态查询；3-15:未使用。<br><code>AA</code>:占1位，1/8字节。是否权威回复。<br><code>TC</code>:占1位，1/8字节。因为一个UDP报文为512字节，所以该位指示是否截掉超过的部分。<br><code>RD</code>:占1位，1/8字节。此位在查询中指定，回复时相同。设置为1指示服务器进行递归查询。<br><code>RA</code>:占1位，1/8字节。由DNS回复返回指定，说明DNS服务器是否支持递归查询。<br><code>Z</code>:占3位，3/8字节。保留字段，必须设置为0<br><code>RCODE</code>:占4位，1/2字节。由回复时指定的返回码：0:无差错；1:格式错；2:DNS出错；3:域名不存在；4:DNS不支持这类查询；5:DNS拒绝查询；6-15:保留字段。　<br><code>QDCOUNT</code>:占16位，2字节。一个无符号数指示查询记录的个数。<br><code>ANCOUNT</code>:占16位，2字节。一个无符号数指明回复记录的个数。<br><code>NSCOUNT</code>:占16位，2字节。一个无符号数指明权威记录的个数。<br><code>ARCOUNT</code>:占16位，2字节。一个无符号数指明格外记录的个数。</p>
+<hr>
+<p>问题部分</p>
+<p><code>QNMAE</code> <code>QTYPE</code> <code>Qclass</code></p>
+<p>QNAME:不定长，表示要查询的域名。<br>QTYPE:2字节，根据RFC1035及nslookup的帮助文档</p>
+<p>A=0x01, //指定计算机 IP 地址。<br>NS=0x02, //指定用于命名区域的 DNS 名称服务器。<br>MD=0x03, //指定邮件接收站（此类型已经过时了，使用MX代替）<br>MF=0x04, //指定邮件中转站（此类型已经过时了，使用MX代替）<br>CNAME=0x05, //指定用于别名的规范名称。<br>SOA=0x06, //指定用于 DNS 区域的“起始授权机构”。<br>MB=0x07, //指定邮箱域名。<br>MG=0x08, //指定邮件组成员。<br>MR=0x09, //指定邮件重命名域名。<br>NULL=0x0A, //指定空的资源记录<br>WKS=0x0B, //描述已知服务。<br>PTR=0x0C, //如果查询是 IP 地址，则指定计算机名；否则指定指向其它信息的指针。<br>HINFO=0x0D, //指定计算机 CPU 以及操作系统类型。<br>MINFO=0x0E, //指定邮箱或邮件列表信息。<br>MX=0x0F, //指定邮件交换器。<br>TXT=0x10, //指定文本信息。<br>AAAA=0x1c,//IPV6资源记录。<br>UINFO=0x64, //指定用户信息。<br>UID=0x65, //指定用户标识符。<br>GID=0x66, //指定组名的组标识符。<br>ANY=0xFF //指定所有数据类型。<br>QTYPE:2字节。 根据RFC1035及nslookup的帮助文档，我定义以下枚举类型：<br>enum QueryClass //指定信息的协议组。<br>IN=0x01, //指定 Internet 类别。<br>CSNET=0x02, //指定 CSNET 类别。（已过时）<br>CHAOS=0x03, //指定 Chaos 类别。<br>HESIOD=0x04,//指定 MIT Athena Hesiod 类别。<br>ANY=0xFF //指定任何以前列出的通配符。</p>
+<p>Qtype中 <code>A</code> <code>MX</code> <code>CNAME</code>,QCLASS中的<code>IN</code>为常用</p>
+<hr>
+<p>回答部分</p>
+<p><code>NAME</code> <code>TYPE</code> <code>CLASS</code> <code>TTL</code> <code>RDLENGTH</code> 　<code>ＲＤＡＴＡ</code></p>
+<p>NAME:回复查询的域名，不定长。<br>TYPE:回复的类型。2字节，与查询同义。指示RDATA中的资源记录类型。<br>CLASS:回复的类。2字节，与查询同义。指示RDATA中的资源记录类。<br>TTL:生存时间。4字节，指示RDATA中的资源记录在缓存的生存时间。<br>RDLENGTH:长度。2字节，指示RDATA块的长度。<br>RDATA:资源记录。不定义，依TYPE的不同，此记录的格示不同，通常一个MX记录是由一个2字节的指示该邮件交换器的优先级值及不定长的邮件交换器名组成的。</p>
+<h2 id="SSH协议"><a href="#SSH协议" class="headerlink" title="SSH协议"></a>SSH协议</h2><h2 id="FTP协议"><a href="#FTP协议" class="headerlink" title="FTP协议"></a>FTP协议</h2>]]></content>
+      <categories>
+        <category>TCP/IP</category>
+      </categories>
+      <tags>
+        <tag>TCP/IP数据包头</tag>
+      </tags>
+  </entry>
 </search>
