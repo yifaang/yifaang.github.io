@@ -771,7 +771,10 @@
 <p>##二、Metasploit Linux ELF分析</p>
 <p>首先用MSF生成一个Linux ELF马<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201338853.png"><br>然后把它拖进去IDA，点击主入口<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/2022-01-18-16-39-17.png"><br>来到这个界面，直接按F5<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/2022-01-18-16-39-38.png"><br>来到这个界面的代码感觉跟CS是有区别的<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201340247.png"><br>那么可以先看一下下面的图解释，可以了解到<code>sockaddr</code>和<code>sockaddr_in</code>它们两的表达方式是有区别的，但是可以通过下面的代码能够详细的看到它们的原理<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201341449.png"><br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201341103.png"><br>然后再看IDA的代码，可以看到<code>sockaddr</code>内部存的数据也就是<code>v14</code>为<code>3903000AB3150002</code>，又知道根据小端存储的规则可知：</p>
 <blockquote>
-<p>sin_family = 0200 = AF_INET<br>sin_port = 15B3 = 5555<br>sin_addr = 0A000339 = 10.0.3.57<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201342108.png"><br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201342173.png"><br>参考文章：<br><a href="https://blog.csdn.net/dong_beijing/article/details/88828971">https://blog.csdn.net/dong_beijing/article/details/88828971</a><br><a href="https://www.jb51.net/article/117902.htm">https://www.jb51.net/article/117902.htm</a></p>
+<p>sin_family = 0200 = AF_INET<br>sin_port = 15B3 = 5555<br>sin_addr = 0A000339 = 10.0.3.57<br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201342108.png"><br><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201201342173.png"></p>
+<p>作者：Tony</p>
+<p>参考文章：</p>
+<p><a href="https://blog.csdn.net/dong_beijing/article/details/88828971">https://blog.csdn.net/dong_beijing/article/details/88828971</a><br><a href="https://www.jb51.net/article/117902.htm">https://www.jb51.net/article/117902.htm</a></p>
 </blockquote>
 ]]></content>
       <categories>
