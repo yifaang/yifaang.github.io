@@ -916,4 +916,33 @@
         <tag>Vulnhub-Easy</tag>
       </tags>
   </entry>
+  <entry>
+    <title>CVE-2021-4034漏洞复现</title>
+    <url>/2022/01/28/CVE20214034/index/</url>
+    <content><![CDATA[<h1 id="CVE-2021-4034"><a href="#CVE-2021-4034" class="headerlink" title="CVE-2021-4034"></a>CVE-2021-4034</h1><h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p><code>Linux提权</code> <code>本地权限提升</code> </p>
+<p>CVE编号：<strong>CVE-2021-4034</strong></p>
+<p><code>polkit</code> 的 <code>pkexec</code> 存在本地权限提升漏洞，已获得普通权限的攻击者可通过此漏洞获取<code>root</code>权限。</p>
+<p>该漏洞CVSS评分：7.8，危害等级：高危</p>
+<hr>
+<h3 id="fofa查询条件"><a href="#fofa查询条件" class="headerlink" title="fofa查询条件"></a>fofa查询条件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">app=&quot;Linux-操作系统&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CentOS系列：</span><br><span class="line">CentOS 6：polkit-0.96-11.el6_10.2</span><br><span class="line">CentOS 7：polkit-0.112-26.el7_9.1</span><br><span class="line">CentOS 8.0：polkit-0.115-13.el8_5.1</span><br><span class="line">CentOS 8.2：polkit-0.115-11.el8_2.2</span><br><span class="line">CentOS 8.4：polkit-0.115-11.el8_4.2</span><br><span class="line"></span><br><span class="line">Ubuntu系列：</span><br><span class="line">Ubuntu 20.04 LTS：policykit-1 - 0.105-26ubuntu1.2</span><br><span class="line">Ubuntu 18.04 LTS：policykit-1 - 0.105-20ubuntu0.18.04.6</span><br><span class="line">Ubuntu 16.04 ESM：policykit-1 - 0.105-14.1ubuntu0.5+esm1</span><br><span class="line">Ubuntu 14.04 ESM：policykit-1 - 0.105-4ubuntu3.14.04.6+esm1</span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞验证方法："><a href="#漏洞验证方法：" class="headerlink" title="漏洞验证方法："></a>漏洞验证方法：</h3><h4 id="Centos："><a href="#Centos：" class="headerlink" title="Centos："></a>Centos：</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">rpm -qa polkit</span><br><span class="line">修复建议：</span><br><span class="line">yum clean all &amp;&amp; yum makecacheyum update polkit -y</span><br></pre></td></tr></table></figure>
+
+<h4 id="Ubuntu："><a href="#Ubuntu：" class="headerlink" title="Ubuntu："></a>Ubuntu：</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dpkg -l policykit-1</span><br><span class="line">修复建议：</span><br><span class="line">sudo apt-get updatesudo apt-get install policykit-1</span><br></pre></td></tr></table></figure>
+
+<p><strong>EXP：下载</strong></p>
+<p><a href="https://github.com/yifaang/Poc/blob/main/CVE-2021-4034.zip">https://github.com/yifaang/Poc/blob/main/CVE-2021-4034.zip</a></p>
+<h2 id="漏洞验证"><a href="#漏洞验证" class="headerlink" title="漏洞验证"></a>漏洞验证</h2><p>根据 <code>README.md</code>提示，首先执行 <code>make命令进行编译</code>，然后即可执行 <code>./cve-2021-4034</code>，即可提权成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201281240935.jpg"></p>
+<p>可以看到组权限在执行完exp后发生了变化，提权成功！</p>
+]]></content>
+      <categories>
+        <category>Poc</category>
+      </categories>
+      <tags>
+        <tag>Linux提权</tag>
+      </tags>
+  </entry>
 </search>
