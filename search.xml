@@ -1065,7 +1065,10 @@
 <p>在<code>根目录</code>下查找文件的属组是 <code>root</code>的文件</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm 111</span><br></pre></td></tr></table></figure>
 
-<p>在 <code>根目录</code>下查找主组其他都可以执行的文件</p>
+<p>在 <code>根目录</code>下查找主组其他都可以执行的文件（完全满足）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm +111</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>根目录</code>下查找满足111权限（可以高于其权限）</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm /111</span><br></pre></td></tr></table></figure>
 
 <p><code>/111</code>表示<code>ugo</code>中只要有一项满足<code>x</code>执行权限即可</p>
