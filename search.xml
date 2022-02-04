@@ -939,7 +939,7 @@
 <p>可以看到组权限在执行完exp后发生了变化，提权成功！</p>
 ]]></content>
       <categories>
-        <category>Poc</category>
+        <category>PoC</category>
       </categories>
       <tags>
         <tag>Linux提权</tag>
@@ -989,6 +989,106 @@
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux(find)命令的使用</title>
+    <url>/2022/02/04/linux-find/index/</url>
+    <content><![CDATA[<h1 id="Find命令使用"><a href="#Find命令使用" class="headerlink" title="Find命令使用"></a>Find命令使用</h1><h2 id="基础使用格式"><a href="#基础使用格式" class="headerlink" title="基础使用格式"></a>基础使用格式</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find &#123;dir&#125; &#123;-name|-perm&#125; **</span><br></pre></td></tr></table></figure>
+
+<h2 id="八进制权限对应"><a href="#八进制权限对应" class="headerlink" title="八进制权限对应"></a>八进制权限对应</h2><table>
+<thead>
+<tr>
+<th>权限</th>
+<th>二进制</th>
+<th>八进制</th>
+<th>权限</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>—</strong></td>
+<td><strong>000</strong></td>
+<td><strong>0</strong></td>
+<td><strong>没有任何权限</strong></td>
+</tr>
+<tr>
+<td><strong>–x</strong></td>
+<td><strong>001</strong></td>
+<td><strong>1</strong></td>
+<td><strong>只允许执行</strong></td>
+</tr>
+<tr>
+<td><strong>-w-</strong></td>
+<td><strong>010</strong></td>
+<td><strong>2</strong></td>
+<td><strong>只允许写入</strong></td>
+</tr>
+<tr>
+<td><strong>-wx</strong></td>
+<td><strong>011</strong></td>
+<td><strong>3</strong></td>
+<td><strong>只允许执行和写入</strong></td>
+</tr>
+<tr>
+<td><strong>r–</strong></td>
+<td><strong>100</strong></td>
+<td><strong>4</strong></td>
+<td><strong>只允许读取</strong></td>
+</tr>
+<tr>
+<td><strong>r-x</strong></td>
+<td><strong>101</strong></td>
+<td><strong>5</strong></td>
+<td><strong>只允许读取和执行</strong></td>
+</tr>
+<tr>
+<td><strong>rw-</strong></td>
+<td><strong>110</strong></td>
+<td><strong>6</strong></td>
+<td><strong>只允许读取和写入</strong></td>
+</tr>
+<tr>
+<td><strong>rwx</strong></td>
+<td><strong>111</strong></td>
+<td><strong>7</strong></td>
+<td><strong>永远全部权限</strong></td>
+</tr>
+</tbody></table>
+<h2 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -name f1</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>根目录</code>下查找文件名中带有 <code>f1</code>的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -user root</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>根目录</code>下查找文件的属主为<code>root</code>的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -group root</span><br></pre></td></tr></table></figure>
+
+<p>在<code>根目录</code>下查找文件的属组是 <code>root</code>的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm 111</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>根目录</code>下查找主组其他都可以执行的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm /111</span><br></pre></td></tr></table></figure>
+
+<p><code>/111</code>表示<code>ugo</code>中只要有一项满足<code>x</code>执行权限即可</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -type f</span><br></pre></td></tr></table></figure>
+
+<p>按照指定的文件类型进行搜索文件， <code>f</code>表示普通文件，<code>d</code>表示目录，<code>l</code>表示软连接，<code>b</code>是块链接，<code>c</code>表示字符设备</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -inum 166633</span><br></pre></td></tr></table></figure>
+
+<p>查找<code>inode</code>为<code>166633</code>的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -size +100M</span><br></pre></td></tr></table></figure>
+
+<p>查找大小是 <code>100M</code>的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm -111 -type f -exec ls -l &#123;&#125; \;</span><br></pre></td></tr></table></figure>
+
+<p><code>&#123;&#125;</code>可以理解为将find查询到的文件名带入<code>exec</code>参数中的命令当中去</p>
+<h2 id="提权时可以用到的命令"><a href="#提权时可以用到的命令" class="headerlink" title="提权时可以用到的命令"></a>提权时可以用到的命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm /4000 2 &gt; /dev/null</span><br><span class="line">find / -perm /2000 2 &gt; /dev/null</span><br><span class="line">find / /writable 2 &gt; /dev/null </span><br><span class="line">find / -type f -user root -perm -ug=x,o=w -exec ls -l &#x27;&#123;&#125;&#x27; \; 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Command</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>
