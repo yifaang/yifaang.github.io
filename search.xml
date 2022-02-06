@@ -1084,7 +1084,7 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm -111 -type f -exec ls -l &#123;&#125; \;</span><br></pre></td></tr></table></figure>
 
 <p><code>&#123;&#125;</code>可以理解为将find查询到的文件名带入<code>exec</code>参数中的命令当中去</p>
-<h2 id="提权时可以用到的命令"><a href="#提权时可以用到的命令" class="headerlink" title="提权时可以用到的命令"></a>提权时可以用到的命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm /4000 2 &gt; /dev/null</span><br><span class="line">find / -perm /2000 2 &gt; /dev/null</span><br><span class="line">find / /writable 2 &gt; /dev/null </span><br><span class="line">find / -type f -user root -perm -ug=x,o=w -exec ls -l &#x27;&#123;&#125;&#x27; \; 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+<h2 id="提权时可以用到的命令"><a href="#提权时可以用到的命令" class="headerlink" title="提权时可以用到的命令"></a>提权时可以用到的命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">find / -perm /4000 2 &gt; /dev/null 	#寻找属主中存在S权限的</span><br><span class="line">find / -perm /2000 2 &gt; /dev/null 	#寻找属组中存在S权限的</span><br><span class="line">find / /writable 2 &gt; /dev/null 		#寻找允许进行写入的</span><br><span class="line">find / -type f -user root -perm -ug=x,o=w -exec ls -l &#x27;&#123;&#125;&#x27; \; 2&gt;/dev/null</span><br><span class="line">find / -type f -perm -u+sx -g+sx·······</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -1166,7 +1166,7 @@
 <p>生成私钥[Setting]-&gt;[Developer Setting]-&gt;[Personal access tokens]-&gt;[Generate new token]</p>
 <p>生成后的<code>token</code>只会出现一次，请妥善保存</p>
 <p>然后对Git进行配置,</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git remote set-url origin  https://&lt;Token&gt;/&lt;Username&gt;/&lt;repo&gt;.git</span><br><span class="line">git add *</span><br><span class="line">git commit -m &quot;提交内容&quot;</span><br><span class="line">git push </span><br><span class="line">-----------------------------------------------------------------</span><br><span class="line">socks代理：</span><br><span class="line">git config --global http.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line">git config --global https.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git remote set-url origin  https://&lt;Token&gt;/&lt;Username&gt;/&lt;repo&gt;.git</span><br><span class="line">git add *</span><br><span class="line">git commit -m &quot;提交内容&quot;</span><br><span class="line">git push </span><br><span class="line">-----------------------------------------------------------------</span><br><span class="line">socks代理：</span><br><span class="line">git config --global http.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line">git config --global https.proxy &#x27;socks5://127.0.0.1:1080&#x27;</span><br><span class="line">-----------------------------------------------------------------</span><br><span class="line">取消代理</span><br><span class="line">git config --global --unset http.proxy</span><br><span class="line">git config --global --unset https.proxy</span><br></pre></td></tr></table></figure>
 
 <p>简单的一比就离谱！</p>
 ]]></content>
