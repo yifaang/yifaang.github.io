@@ -99,7 +99,7 @@
 <p>然而，很可惜这里的靶机无法获取ip……</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -276,7 +276,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201121259831.jpg"></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -341,7 +341,7 @@
 <p>提权成功，<u>打靶结束</u></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-middlum</tag>
@@ -441,7 +441,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201161402577.jpg"></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Hard</tag>
@@ -527,7 +527,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202111071208625.png" alt="getshell"></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Hard</tag>
@@ -593,7 +593,7 @@
 <p>打靶结束！！！</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -669,7 +669,7 @@
 <p>提权成功打靶结束</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -747,7 +747,7 @@
 <p>说明：针对该靶机还有另一种提权方式，打开目录下的databases.sql文件 <code>sqlite3</code>，然后会得到cloudav用户的密码，cloudeav用户允许进行sudo，进而使用sudo提权！在这里 <code>CVE-2021-3493</code>则是一种相比较更快的提权方式！</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -852,7 +852,7 @@
 <p>打靶结束</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-middlum</tag>
@@ -910,7 +910,7 @@
 <p>打靶结束！</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -985,7 +985,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202201290932835.png"></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -1149,7 +1149,7 @@
 <p>因为变量在索引时，是由前到后，因此只需要覆盖掉目标的系统变量即可</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-middlum</tag>
@@ -1254,7 +1254,7 @@
 <p>因为<code>redis</code>所运行的权限很高，因此通过redis写入文件到root的文件中，即可完成使用ssh登录root用户</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-middlum</tag>
@@ -1312,7 +1312,7 @@
 <p>提权成功</p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Hard</tag>
@@ -1363,7 +1363,7 @@
 <p><img src="https://cdn.jsdelivr.net/gh/yifaang/picture@master/202202092254093.png"></p>
 ]]></content>
       <categories>
-        <category>Vulnhub</category>
+        <category>和我一起来打靶</category>
       </categories>
       <tags>
         <tag>Vulnhub-Easy</tag>
@@ -1495,6 +1495,28 @@
       </categories>
       <tags>
         <tag>二进制</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux下gdb使用</title>
+    <url>/2022/02/15/gdb/index/</url>
+    <content><![CDATA[<h1 id="GDB"><a href="#GDB" class="headerlink" title="GDB"></a>GDB</h1><h2 id="安装GDB"><a href="#安装GDB" class="headerlink" title="安装GDB"></a>安装GDB</h2><h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1.介绍"></a>1.介绍</h3><p><code>UNIX</code>或 <code>UNIX-like</code>下调试工具</p>
+<h3 id="2-安装"><a href="#2-安装" class="headerlink" title="2.安装"></a>2.安装</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo apt install gdb</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-启动"><a href="#3-启动" class="headerlink" title="3.启动"></a>3.启动</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">可以不加入任何参数运行</span></span><br><span class="line">gcc -g file.c -o a</span><br><span class="line">gdb ./a</span><br><span class="line"><span class="meta">#</span><span class="bash">添加参数运行</span></span><br><span class="line">gdb --args ./a -[args]</span><br></pre></td></tr></table></figure>
+
+<h2 id="gdb调试命令"><a href="#gdb调试命令" class="headerlink" title="gdb调试命令"></a>gdb调试命令</h2><h3 id="1-基础调试命令"><a href="#1-基础调试命令" class="headerlink" title="1.基础调试命令"></a>1.基础调试命令</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">b(<span class="built_in">break</span>) main <span class="comment">#main函数新增断点</span></span><br><span class="line">r(run) running <span class="comment">#执行程序</span></span><br><span class="line">l(list)  <span class="comment">#查看代码信息  gcc -g file c -o file</span></span><br><span class="line">si(在机器码层面执行代码) <span class="comment">#单步执行</span></span><br><span class="line">info b <span class="comment">#查看断点</span></span><br><span class="line">delete [断点编号] <span class="comment">#如果不加默认是所有断点</span></span><br><span class="line">bt <span class="comment">#查看堆栈</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-单步执行"><a href="#2-单步执行" class="headerlink" title="2.单步执行"></a>2.单步执行</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">n <span class="comment">#不进入函数</span></span><br><span class="line">s <span class="comment">#单步源码层面的执行</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-汇编操作"><a href="#3-汇编操作" class="headerlink" title="3.汇编操作"></a>3.汇编操作</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">disas [function] #查看函数汇编源码</span><br><span class="line">b 0xffffff #在内存地址下断点</span><br><span class="line">p 0xffffff #打印地址内容</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Command</tag>
       </tags>
   </entry>
 </search>
