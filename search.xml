@@ -1635,7 +1635,24 @@
 <h3 id="etc-shadow"><a href="#etc-shadow" class="headerlink" title="/etc/shadow"></a>/etc/shadow</h3><p>/etc/passwd允许所有用户读取，容易导致用户密码泄露，所以Linux系统讲用户相关的密码信息从/etc/passwd分离出来，并且/etc/shadow只有密码</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">root:$6$XfcQttQOKFUzwA8u<span class="variable">$vfHmjDGX7LX3</span>/BMIAavKocWaIseQipdOekiPW4iEnZ8v8okNLKfSHMkdI.oUdyVeYV6yuJXRDeUBOzN7SfutD/:18993:0:99999:7:::</span><br><span class="line">用户名：加密密码：最后一次修改时间：最小修改时间间隔：密码有效期：密码需要变更前的警告天数：密码过期后的宽限时间：账号失效时间：保留字段</span><br></pre></td></tr></table></figure>
 
-<h3 id="etc-ssh-sshd-config"><a href="#etc-ssh-sshd-config" class="headerlink" title="/etc/ssh/sshd_config"></a>/etc/ssh/sshd_config</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Port 22				<span class="comment">#ssh默认端口</span></span><br><span class="line">ListenAddress 0.0.0.0	<span class="comment">#只能使用这个IP进行登录 改为跳板机登录</span></span><br><span class="line">LoginGraceTime 2m		<span class="comment">#登录框超时时间		30s</span></span><br><span class="line">PermitRootLogin yes		<span class="comment">#是否允许root远程登录   生产环境绝对是no</span></span><br><span class="line">MaxAuthTries 6			<span class="comment">#最大的密码尝试次数		3</span></span><br><span class="line">ClientAliveInterval 3		<span class="comment">#客户端超时次数	3</span></span><br></pre></td></tr></table></figure>
+<h3 id="etc-ssh-sshd-config"><a href="#etc-ssh-sshd-config" class="headerlink" title="/etc/ssh/sshd_config"></a>/etc/ssh/sshd_config</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Port 22				<span class="comment">#ssh默认端口</span></span><br><span class="line">ListenAddress 0.0.0.0	<span class="comment">#只能使用这个IP进行登录 改为跳板机登录</span></span><br><span class="line">LoginGraceTime 2m		<span class="comment">#登录框超时时间		30s</span></span><br><span class="line">PermitRootLogin yes		<span class="comment">#是否允许root远程登录   生产环境绝对是no</span></span><br><span class="line">MaxAuthTries 6			<span class="comment">#最大的密码尝试次数		3</span></span><br><span class="line">ClientAliveInterval 3		<span class="comment">#客户端超时次数	3</span></span><br><span class="line">LoginGraceTime 2m		<span class="comment">#连接主机时，输入密码超过2分钟就断开连接</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="etc-bashrc"><a href="#etc-bashrc" class="headerlink" title="/etc/bashrc"></a>/etc/bashrc</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="variable">$UID</span> -gt 199 ] &amp;&amp; [ <span class="string">&quot;`/usr/bin/id -gn`&quot;</span> = <span class="string">&quot;`/usr/bin/id -un`&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">   <span class="built_in">umask</span> 002 	<span class="comment">#027 750 640</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">   <span class="built_in">umask</span> 022</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>配置<code>UMASK</code>对权限进行管理</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">HISTFILESIZE=4000            <span class="comment">#默认保存命令是1000条，这里修改为4000条</span></span><br><span class="line">HISTSIZE=4000</span><br><span class="line">USER_IP=`who -u am i 2&gt;/dev/null| awk <span class="string">&#x27;&#123;print $NF&#125;&#x27;</span>|sed -e <span class="string">&#x27;s/[()]//g&#x27;</span>` <span class="comment">#取得登录客户端的IP</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$USER_IP</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">  USER_IP=`hostname`</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">HISTTIMEFORMAT=<span class="string">&quot;%F %T <span class="variable">$USER_IP</span>:`whoami` &quot;</span>     <span class="comment">#设置新的显示history的格式</span></span><br><span class="line"><span class="built_in">export</span> HISTTIMEFORMAT</span><br></pre></td></tr></table></figure>
+
+<p><code>history</code>管理</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile</span><br><span class="line"><span class="built_in">source</span> /etc/bashrc</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>source</code>命令对文件进行读取生效操作</p>
+<h3 id="etc-host-deny-主机黑名单"><a href="#etc-host-deny-主机黑名单" class="headerlink" title="/etc/host.deny(主机黑名单)"></a>/etc/host.deny(主机黑名单)</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sshd:ALL</span><br></pre></td></tr></table></figure>
+
+<p>禁止所有主机登录</p>
+<h3 id="etc-host-allow-主机白名单"><a href="#etc-host-allow-主机白名单" class="headerlink" title="/etc/host.allow(主机白名单)"></a>/etc/host.allow(主机白名单)</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sshd:ALL</span><br></pre></td></tr></table></figure>
+
+<p>  为了安全可以在hosts.deny文件中配置拒绝所有的访问ALL:ALL，然后在hosts.allow文件中逐个开放访问许可，增强安全性。</p>
+<h3 id="检测文件是否有改动-md5标签"><a href="#检测文件是否有改动-md5标签" class="headerlink" title="检测文件是否有改动(md5标签)"></a>检测文件是否有改动(md5标签)</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">md5sum /etc/hosts.deny &gt;&gt; /root/md5</span><br><span class="line">md5sum --check /root/md5</span><br></pre></td></tr></table></figure>
 
 ]]></content>
       <categories>
@@ -1729,6 +1746,32 @@
       </categories>
       <tags>
         <tag>代码优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux Knockd端口敲门</title>
+    <url>/2022/05/23/knockd/index/</url>
+    <content><![CDATA[<h1 id="Linux-Knockd端口敲门"><a href="#Linux-Knockd端口敲门" class="headerlink" title="Linux Knockd端口敲门"></a>Linux Knockd端口敲门</h1><h2 id="端口敲门的概念"><a href="#端口敲门的概念" class="headerlink" title="端口敲门的概念"></a>端口敲门的概念</h2><p>正常的攻击会进行一次端口扫描，如果发现目标开启了某端口，如<code>22</code>端口，那么就会进行<code>ssh</code>账号密码爆破，因此就会使用一些手段进行安全防御</p>
+<p>1)使用ssh端口映射，再添加白名单，在内网打开端口，需要的时候进行ssh连接端口映射，创建无shell权限用户，只用作ssh连接</p>
+<p>2)使用<code>Knockd</code>进行端口敲门，在按顺序对目标的特殊端口进行<code>敲门</code>时，才会打开所隐藏的端口(其原理是<code>iptables</code>)</p>
+<h2 id="部署-amp-安装"><a href="#部署-amp-安装" class="headerlink" title="部署&amp;安装"></a>部署&amp;安装</h2><h3 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo apt-get install knockd -y</span><br></pre></td></tr></table></figure>
+
+<p>前往客户端，执行同样的命令</p>
+<h3 id="2-配置"><a href="#2-配置" class="headerlink" title="2.配置"></a>2.配置</h3><p>敲门配置文件位置: <code>/etc/knockd.conf</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[options]</span><br><span class="line">        LogFile = /var/log/knockdlog.log</span><br><span class="line">[openSSH]</span><br><span class="line">        sequence    = 7000,8000,9000 	#敲门顺序</span><br><span class="line">        seq_timeout = 5					#超时时间</span><br><span class="line">        command     = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT #防火墙命令</span><br><span class="line">        tcpflags    = syn	</span><br><span class="line"></span><br><span class="line">[closeSSH]</span><br><span class="line">        sequence    = 9000,8000,7000</span><br><span class="line">        seq_timeout = 5</span><br><span class="line">        command     = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT</span><br><span class="line">        tcpflags    = syn</span><br></pre></td></tr></table></figure>
+
+<p>创建一个日志文件，然后讲[openSSH]中的iptables的-A改为-I</p>
+<p>knock服务配置:<code> /etc/default/knockd</code></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">START_KNOCKD=1		#由0该为1即为启动</span><br><span class="line">KNOCKD_OPTS=&quot;-i eth0&quot; #后面eth0改为自己的网卡接口</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-启动"><a href="#3-启动" class="headerlink" title="3.启动"></a>3.启动</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">systemctl start knockd</span><br><span class="line">systemctl restart knockd</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-客户端验证"><a href="#4-客户端验证" class="headerlink" title="4.客户端验证"></a>4.客户端验证</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">knock -v [IP] 7000 8000 9000</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
 </search>
